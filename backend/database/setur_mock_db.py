@@ -1,72 +1,40 @@
-"""Mock Setur Marina Database - POC"""
+"""Mock Setur Marina Database - Refactored"""
 
-import json
-from typing import List, Dict, Optional
-from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
 import random
+from typing import List, Optional
+from datetime import datetime, timedelta
+
+from .interface import DatabaseInterface
+from .models import Berth, Booking, Marina
+from ..logger import setup_logger
+from ..exceptions import (
+    BerthNotFoundError,
+    BerthNotAvailableError,
+    BookingError
+)
 
 
-@dataclass
-class Berth:
-    berth_id: str
-    marina_id: str
-    section: str
-    number: str
-    length_meters: float
-    width_meters: float
-    depth_meters: float
-    has_electricity: bool
-    has_water: bool
-    has_wifi: bool
-    daily_rate_eur: float
-    status: str
-    current_boat_name: Optional[str] = None
-    current_booking_id: Optional[str] = None
+logger = setup_logger(__name__)
 
 
-@dataclass
-class Booking:
-    booking_id: str
-    berth_id: str
-    marina_id: str
-    customer_name: str
-    customer_email: str
-    customer_phone: str
-    boat_name: str
-    boat_length_meters: float
-    check_in: str
-    check_out: str
-    total_nights: int
-    total_price_eur: float
-    status: str
-    created_at: str
-    services_requested: List[str]
-
-
-@dataclass
-class Marina:
-    marina_id: str
-    name: str
-    location: str
-    country: str
-    total_berths: int
-    available_berths: int
-    coordinates: Dict[str, float]
-    amenities: List[str]
-    contact_email: str
-    contact_phone: str
-
-
-class SeturMockDatabase:
+class SeturMockDatabase(DatabaseInterface):
     """Mock database for Setur Marina operations"""
 
-    def __init__(self):
-        self.marinas = self._create_mock_marinas()
-        self.berths = self._create_mock_berths()
-        self.bookings = self._create_mock_bookings()
+    def __init__(self) -> None:
+        """Initialize mock data"""
+        logger.info("Initializing Setur Mock Database")
+        
+        self.marinas: List[Marina] = self._create_mock_marinas()
+        self.berths: List[Berth] = self._create_mock_berths()
+        self.bookings: List[Booking] = []
+        
+        logger.info(
+            f"Database initialized: {len(self.marinas)} marinas, "
+            f"{len(self.berths)} berths"
+        )
 
     def _create_mock_marinas(self) -> List[Marina]:
+        """Create mock marina data"""
         return [
             Marina(
                 marina_id="setur-bodrum-001",
@@ -76,7 +44,11 @@ class SeturMockDatabase:
                 total_berths=450,
                 available_berths=123,
                 coordinates={"lat": 37.0349, "lon": 27.4305},
-                amenities=["Restaurant", "Bar", "Wifi", "Fuel Station", "Technical Service"],
+                amenities=[
+                    "Restaurant", "Bar", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7"
+                ],
                 contact_email="bodrum@seturmarinas.com",
                 contact_phone="+90 252 316 1860"
             ),
@@ -88,15 +60,35 @@ class SeturMockDatabase:
                 total_berths=580,
                 available_berths=87,
                 coordinates={"lat": 37.8607, "lon": 27.2615},
-                amenities=["Restaurant", "Pool", "Spa", "Wifi", "Fuel Station"],
+                amenities=[
+                    "Restaurant", "Pool", "Spa", "Wifi",
+                    "Fuel Station", "Repair Yard", "Shopping Center",
+                    "Medical Service"
+                ],
                 contact_email="kusadasi@seturmarinas.com",
                 contact_phone="+90 256 618 1150"
+            ),
+            Marina(
+                marina_id="setur-cesme-001",
+                name="Setur Çeşme Marina",
+                location="Çeşme, İzmir",
+                country="Turkey",
+                total_berths=380,
+                available_berths=145,
+                coordinates={"lat": 38.3190, "lon": 26.3020},
+                amenities=[
+                    "Restaurant", "Bar", "Wifi", "Fuel Station",
+                    "Technical Service", "Sailing School"
+                ],
+                contact_email="cesme@seturmarinas.com",
+                contact_phone="+90 232 723 1250"
             )
         ]
 
     def _create_mock_berths(self) -> List[Berth]:
-        berths = []
-        sections = ["A", "B", "C", "D"]
+        """Create mock berth data"""
+        berths: List[Berth] = []
+        sections = ["A", "B", "C", "D", "E"]
         statuses = ["available", "occupied", "reserved"]
 
         for marina in self.marinas:
@@ -104,6 +96,7 @@ class SeturMockDatabase:
 
             for section in sections:
                 for num in range(1, berths_per_section + 1):
+                    # Vary berth sizes
                     if num % 3 == 0:
                         length = random.uniform(18.0, 25.0)
                         daily_rate = random.uniform(180, 300)
@@ -133,13 +126,23 @@ class SeturMockDatabase:
 
         return berths
 
-    def _create_mock_bookings(self) -> List[Booking]:
-        return []
-
     def get_marina_by_id(self, marina_id: str) -> Optional[Marina]:
-        return next((m for m in self.marinas if m.marina_id == marina_id), None)
+        """Get marina by ID"""
+        marina = next(
+            (m for m in self.marinas if m.marina_id == marina_id),
+            None
+        )
+        
+        if marina:
+            logger.debug(f"Found marina: {marina.name}")
+        else:
+            logger.warning(f"Marina not found: {marina_id}")
+            
+        return marina
 
     def get_all_marinas(self) -> List[Marina]:
+        """Get all marinas"""
+        logger.debug(f"Returning {len(self.marinas)} marinas")
         return self.marinas
 
     def search_available_berths(
@@ -152,7 +155,15 @@ class SeturMockDatabase:
         needs_electricity: bool = False,
         needs_water: bool = False
     ) -> List[Berth]:
-        results = [b for b in self.berths if b.status == "available"]
+        """Search for available berths with filters"""
+        
+        logger.info(
+            f"Searching berths: marina={marina_id}, "
+            f"length={min_length}-{max_length}, "
+            f"electricity={needs_electricity}, water={needs_water}"
+        )
+
+        results = [b for b in self.berths if b.is_available()]
 
         if marina_id:
             results = [b for b in results if b.marina_id == marina_id]
@@ -169,11 +180,26 @@ class SeturMockDatabase:
         if needs_water:
             results = [b for b in results if b.has_water]
 
+        # Sort by price
         results.sort(key=lambda b: b.daily_rate_eur)
+        
+        logger.info(f"Found {len(results)} available berths")
+
         return results
 
     def get_berth_by_id(self, berth_id: str) -> Optional[Berth]:
-        return next((b for b in self.berths if b.berth_id == berth_id), None)
+        """Get berth by ID"""
+        berth = next(
+            (b for b in self.berths if b.berth_id == berth_id),
+            None
+        )
+        
+        if berth:
+            logger.debug(f"Found berth: {berth.number}")
+        else:
+            logger.warning(f"Berth not found: {berth_id}")
+            
+        return berth
 
     def create_booking(
         self,
@@ -187,16 +213,36 @@ class SeturMockDatabase:
         check_out: str,
         services: List[str]
     ) -> Booking:
+        """Create a new booking"""
+        
+        logger.info(f"Creating booking for berth: {berth_id}")
+
         berth = self.get_berth_by_id(berth_id)
         if not berth:
-            raise ValueError(f"Berth {berth_id} not found")
+            raise BerthNotFoundError(f"Berth {berth_id} not found")
 
-        if berth.status != "available":
-            raise ValueError(f"Berth {berth_id} is not available")
+        if not berth.is_available():
+            raise BerthNotAvailableError(
+                f"Berth {berth_id} is {berth.status}"
+            )
 
-        check_in_dt = datetime.fromisoformat(check_in)
-        check_out_dt = datetime.fromisoformat(check_out)
-        nights = (check_out_dt - check_in_dt).days
+        if not berth.is_suitable_for_boat(boat_length):
+            raise BookingError(
+                f"Berth {berth_id} ({berth.length_meters}m) too small "
+                f"for boat ({boat_length}m)"
+            )
+
+        try:
+            check_in_dt = datetime.fromisoformat(check_in)
+            check_out_dt = datetime.fromisoformat(check_out)
+            nights = (check_out_dt - check_in_dt).days
+            
+            if nights <= 0:
+                raise BookingError("Check-out must be after check-in")
+                
+        except ValueError as e:
+            raise BookingError(f"Invalid date format: {e}")
+
         total_price = berth.daily_rate_eur * nights
 
         booking_id = f"BK-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -219,20 +265,46 @@ class SeturMockDatabase:
         )
 
         self.bookings.append(booking)
+
+        # Update berth status
         berth.status = "reserved"
         berth.current_booking_id = booking_id
         berth.current_boat_name = boat_name
+        
+        logger.info(
+            f"Booking created: {booking_id} for {nights} nights, "
+            f"€{total_price:.2f}"
+        )
 
         return booking
 
     def get_booking_by_id(self, booking_id: str) -> Optional[Booking]:
-        return next((b for b in self.bookings if b.booking_id == booking_id), None)
+        """Get booking by ID"""
+        booking = next(
+            (b for b in self.bookings if b.booking_id == booking_id),
+            None
+        )
+        
+        if booking:
+            logger.debug(f"Found booking: {booking_id}")
+        else:
+            logger.warning(f"Booking not found: {booking_id}")
+            
+        return booking
+
+    def get_bookings_by_marina(self, marina_id: str) -> List[Booking]:
+        """Get all bookings for a marina"""
+        bookings = [b for b in self.bookings if b.marina_id == marina_id]
+        logger.debug(f"Found {len(bookings)} bookings for marina: {marina_id}")
+        return bookings
 
 
+# Singleton instance
 _db_instance: Optional[SeturMockDatabase] = None
 
 
 def get_database() -> SeturMockDatabase:
+    """Get or create global database instance"""
     global _db_instance
     if _db_instance is None:
         _db_instance = SeturMockDatabase()
