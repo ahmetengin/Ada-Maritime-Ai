@@ -1,15 +1,23 @@
-"""Big-5 Super Agent Orchestrator"""
+"""Big-5 Super Agent Orchestrator - Refactored"""
 
-import os
 import json
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime
+
 from anthropic import Anthropic
+
+from ..config import get_config
+from ..logger import setup_logger
+from ..exceptions import OrchestratorError, SkillExecutionError
+
+
+logger = setup_logger(__name__)
 
 
 @dataclass
 class SkillResult:
+    """Result from a skill execution"""
     skill_name: str
     success: bool
     data: Any
@@ -20,42 +28,72 @@ class SkillResult:
 
 @dataclass
 class AgentContext:
+    """Context for agent execution"""
     user_id: str
     session_id: str
     marina_id: Optional[str] = None
     language: str = "tr"
-    metadata: Dict = None
+    metadata: Optional[Dict] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.metadata is None:
             self.metadata = {}
 
 
 class Big5Orchestrator:
-    """Big-5 Super Agent Orchestrator for Marina Operations"""
+    """
+    Big-5 Super Agent Orchestrator
+    
+    Coordinates multiple specialized skills for complex marina operations.
+    """
 
-    def __init__(self, api_key: Optional[str] = None):
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+    def __init__(self, api_key: Optional[str] = None) -> None:
+        """Initialize the orchestrator"""
+        config = get_config()
+        
+        self.api_key = api_key or config.api.anthropic_api_key
         if not self.api_key:
-            raise ValueError("ANTHROPIC_API_KEY must be set")
+            raise OrchestratorError("ANTHROPIC_API_KEY is required")
 
-        self.client = Anthropic(api_key=self.api_key)
+        try:
+            self.client = Anthropic(api_key=self.api_key)
+        except Exception as e:
+            logger.error(f"Failed to initialize Anthropic client: {e}")
+            raise OrchestratorError(f"Client initialization failed: {e}")
+
         self.skills: Dict[str, Any] = {}
         self.execution_history: List[SkillResult] = []
+        
+        logger.info("Big5Orchestrator initialized")
 
-    def register_skill(self, skill_name: str, skill_handler):
+    def register_skill(self, skill_name: str, skill_handler: Any) -> None:
+        """Register a skill handler"""
+        if not hasattr(skill_handler, 'execute'):
+            raise OrchestratorError(
+                f"Skill {skill_name} must have 'execute' method"
+            )
+        
         self.skills[skill_name] = skill_handler
-        print(f"✅ Registered skill: {skill_name}")
+        logger.info(f"Registered skill: {skill_name}")
 
     def get_available_skills(self) -> List[str]:
+        """Get list of registered skills"""
         return list(self.skills.keys())
 
-    async def execute_skill(self, skill_name: str, params: Dict, context: AgentContext) -> SkillResult:
+    async def execute_skill(
+        self,
+        skill_name: str,
+        params: Dict[str, Any],
+        context: AgentContext
+    ) -> SkillResult:
+        """Execute a specific skill with error handling"""
         start_time = datetime.now()
+        
+        logger.info(f"Executing skill: {skill_name} with params: {params}")
 
         try:
             if skill_name not in self.skills:
-                raise ValueError(f"Skill '{skill_name}' not found")
+                raise SkillExecutionError(f"Skill '{skill_name}' not found")
 
             skill_handler = self.skills[skill_name]
             result_data = await skill_handler.execute(params, context)
@@ -71,10 +109,18 @@ class Big5Orchestrator:
             )
 
             self.execution_history.append(result)
+            logger.info(
+                f"Skill {skill_name} executed successfully "
+                f"in {execution_time:.2f}s"
+            )
+            
             return result
 
         except Exception as e:
             execution_time = (datetime.now() - start_time).total_seconds()
+            
+            logger.error(f"Skill {skill_name} failed: {e}", exc_info=True)
+            
             result = SkillResult(
                 skill_name=skill_name,
                 success=False,
@@ -87,7 +133,15 @@ class Big5Orchestrator:
             self.execution_history.append(result)
             return result
 
-    def process_natural_language(self, user_input: str, context: AgentContext) -> Dict:
+    def process_natural_language(
+        self,
+        user_input: str,
+        context: AgentContext
+    ) -> Dict[str, Any]:
+        """Process natural language and determine execution plan"""
+        
+        logger.info(f"Processing NL input: {user_input[:50]}...")
+        
         skills_desc = "\n".join([
             f"- {name}: {handler.description}"
             for name, handler in self.skills.items()
@@ -118,56 +172,87 @@ Respond in JSON format:
 }}
 """
 
-        message = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=2000,
-            system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": user_input
-            }]
-        )
-
-        response_text = message.content[0].text
-
         try:
+            message = self.client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=2000,
+                system=system_prompt,
+                messages=[{
+                    "role": "user",
+                    "content": user_input
+                }]
+            )
+
+            response_text = message.content[0].text
             execution_plan = json.loads(response_text)
+            
+            logger.info(f"Execution plan created: {execution_plan.get('intent')}")
+            
             return execution_plan
-        except json.JSONDecodeError:
+            
+        except json.JSONDecodeError as e:
+            logger.warning(f"Failed to parse JSON response: {e}")
             return {
                 "intent": "unclear",
                 "skills_to_execute": [],
                 "response_language": context.language,
                 "raw_response": response_text
             }
+        except Exception as e:
+            logger.error(f"NL processing failed: {e}", exc_info=True)
+            raise OrchestratorError(f"Failed to process request: {e}")
 
-    async def handle_request(self, user_input: str, context: AgentContext) -> Dict:
-        execution_plan = self.process_natural_language(user_input, context)
+    async def handle_request(
+        self,
+        user_input: str,
+        context: AgentContext
+    ) -> Dict[str, Any]:
+        """Main entry point - handle a user request end-to-end"""
+        
+        logger.info(f"Handling request from user: {context.user_id}")
 
-        results = []
-        for skill_spec in execution_plan.get("skills_to_execute", []):
-            result = await self.execute_skill(
-                skill_name=skill_spec["skill_name"],
-                params=skill_spec["params"],
-                context=context
-            )
-            results.append(result)
+        try:
+            # Understand intent
+            execution_plan = self.process_natural_language(user_input, context)
 
-        return {
-            "intent": execution_plan.get("intent"),
-            "results": [asdict(r) for r in results],
-            "success": all(r.success for r in results),
-            "timestamp": datetime.now().isoformat()
-        }
+            # Execute skills
+            results = []
+            for skill_spec in execution_plan.get("skills_to_execute", []):
+                result = await self.execute_skill(
+                    skill_name=skill_spec["skill_name"],
+                    params=skill_spec["params"],
+                    context=context
+                )
+                results.append(result)
 
-    def get_execution_history(self, limit: int = 10) -> List[Dict]:
+            # Aggregate response
+            return {
+                "intent": execution_plan.get("intent"),
+                "results": [asdict(r) for r in results],
+                "success": all(r.success for r in results),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Request handling failed: {e}", exc_info=True)
+            raise OrchestratorError(f"Failed to handle request: {e}")
+
+    def get_execution_history(self, limit: int = 10) -> List[Dict[str, Any]]:
+        """Get recent execution history"""
         return [asdict(r) for r in self.execution_history[-limit:]]
 
+    def clear_history(self) -> None:
+        """Clear execution history"""
+        self.execution_history = []
+        logger.info("Execution history cleared")
 
+
+# Singleton instance
 _orchestrator_instance: Optional[Big5Orchestrator] = None
 
 
 def get_orchestrator() -> Big5Orchestrator:
+    """Get or create global orchestrator instance"""
     global _orchestrator_instance
     if _orchestrator_instance is None:
         _orchestrator_instance = Big5Orchestrator()
