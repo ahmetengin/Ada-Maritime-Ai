@@ -25,6 +25,29 @@ services:
     networks:
       - ada-network
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ada-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - ada-network
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: ada-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-ada_dev_password}
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - ada-network
+
 networks:
   ada-network:
     driver: bridge
@@ -32,3 +55,5 @@ networks:
 volumes:
   postgres_data:
   redis_data:
+  qdrant_data:
+  neo4j_data:
