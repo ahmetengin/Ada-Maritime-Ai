@@ -1,0 +1,7 @@
+{
+  "preToolUseHook": "uv run .claude/hooks/pre_tool_use.py",
+  "postToolUseHook": "uv run .claude/hooks/post_tool_use.py",
+  "userPromptSubmitHook": "uv run .claude/hooks/user_prompt_submit.py",
+  "subagentStartHook": "uv run .claude/hooks/subagent_start.py",
+  "subagentEndHook": "uv run .claude/hooks/subagent_end.py"
+}
