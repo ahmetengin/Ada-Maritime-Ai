@@ -246,3 +246,328 @@ class Marina:
         """Check if marina is currently open (simplified)"""
         # This would need actual timezone handling in production
         return len(self.operating_hours) > 0
+
+
+# ============================================================================
+# COMPLIANCE AND SECURITY MODELS (VERIFY Agent)
+# ============================================================================
+
+class InsuranceType(Enum):
+    """Types of insurance coverage"""
+    LIABILITY = "liability"
+    HULL = "hull"
+    P_AND_I = "p_and_i"  # Protection and Indemnity
+    COMPREHENSIVE = "comprehensive"
+    THIRD_PARTY = "third_party"
+
+
+class InsuranceStatus(Enum):
+    """Insurance verification status"""
+    VALID = "valid"
+    EXPIRED = "expired"
+    PENDING = "pending"
+    REJECTED = "rejected"
+    NOT_PROVIDED = "not_provided"
+
+
+class PermitType(Enum):
+    """Types of permits"""
+    HOT_WORK = "hot_work"  # Article E.5.5
+    COLD_WORK = "cold_work"
+    DIVING = "diving"
+    CRANE = "crane"
+    PAINTING = "painting"
+    WASTE_DISPOSAL = "waste_disposal"
+    SPECIAL_EVENT = "special_event"
+
+
+class PermitStatus(Enum):
+    """Permit status"""
+    REQUESTED = "requested"
+    APPROVED = "approved"
+    ACTIVE = "active"
+    COMPLETED = "completed"
+    EXPIRED = "expired"
+    REJECTED = "rejected"
+    CANCELLED = "cancelled"
+
+
+class ViolationType(Enum):
+    """Types of violations"""
+    SAFETY = "safety"
+    ENVIRONMENTAL = "environmental"
+    OPERATIONAL = "operational"
+    ADMINISTRATIVE = "administrative"
+    SECURITY = "security"
+    INSURANCE = "insurance"
+    PERMIT = "permit"
+
+
+class ViolationSeverity(Enum):
+    """Violation severity levels"""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ViolationStatus(Enum):
+    """Violation resolution status"""
+    DETECTED = "detected"
+    NOTIFIED = "notified"
+    IN_RESOLUTION = "in_resolution"
+    RESOLVED = "resolved"
+    ESCALATED = "escalated"
+
+
+class ComplianceCategory(Enum):
+    """Categories for the 176 compliance articles"""
+    SAFETY = "safety"
+    ENVIRONMENTAL = "environmental"
+    OPERATIONAL = "operational"
+    ADMINISTRATIVE = "administrative"
+    SECURITY = "security"
+    INSURANCE_AND_LIABILITY = "insurance_and_liability"
+    PERMITS_AND_LICENSES = "permits_and_licenses"
+
+
+@dataclass
+class Insurance:
+    """Insurance record for vessels - Article E.2.1 compliance"""
+    insurance_id: str
+    vessel_name: str
+    vessel_registration: str
+    booking_id: Optional[str]
+    policy_number: str
+    insurance_type: str  # InsuranceType
+    provider: str
+    coverage_amount: float
+    currency: str
+    issue_date: str  # ISO format
+    expiry_date: str  # ISO format
+    status: str  # InsuranceStatus
+    verified_by: Optional[str] = None
+    verified_at: Optional[str] = None
+    document_url: Optional[str] = None
+    notes: Optional[str] = None
+    marina_id: Optional[str] = None
+
+    def is_valid(self) -> bool:
+        """Check if insurance is currently valid"""
+        if self.status != "valid":
+            return False
+        try:
+            expiry = datetime.fromisoformat(self.expiry_date)
+            return expiry > datetime.now()
+        except:
+            return False
+
+    def days_until_expiry(self) -> int:
+        """Calculate days until insurance expires"""
+        try:
+            expiry = datetime.fromisoformat(self.expiry_date)
+            delta = expiry - datetime.now()
+            return delta.days
+        except:
+            return -1
+
+    def requires_renewal_notice(self, days_threshold: int = 30) -> bool:
+        """Check if renewal notice should be sent"""
+        days_left = self.days_until_expiry()
+        return 0 < days_left <= days_threshold
+
+
+@dataclass
+class Permit:
+    """Permit record for marina activities - Article E.5.5 (Hot Work) and others"""
+    permit_id: str
+    permit_type: str  # PermitType
+    marina_id: str
+    berth_id: Optional[str]
+    vessel_name: Optional[str]
+    vessel_registration: Optional[str]
+    requested_by: str  # Name of requester
+    requester_email: str
+    requester_phone: str
+    work_description: str
+    work_location: str  # Specific location in marina
+    requested_at: str  # ISO format
+    scheduled_start: str  # ISO format
+    scheduled_end: str  # ISO format
+    status: str  # PermitStatus
+    approved_by: Optional[str] = None
+    approved_at: Optional[str] = None
+    completed_at: Optional[str] = None
+    safety_equipment_required: List[str] = field(default_factory=list)
+    fire_watch_required: bool = False
+    fire_watch_personnel: Optional[str] = None
+    safety_zone_meters: Optional[float] = None
+    conditions: List[str] = field(default_factory=list)
+    violation_logged: bool = False
+    notes: Optional[str] = None
+
+    def is_active(self) -> bool:
+        """Check if permit is currently active"""
+        if self.status != "active":
+            return False
+        try:
+            start = datetime.fromisoformat(self.scheduled_start)
+            end = datetime.fromisoformat(self.scheduled_end)
+            now = datetime.now()
+            return start <= now <= end
+        except:
+            return False
+
+    def is_expired(self) -> bool:
+        """Check if permit has expired"""
+        try:
+            end = datetime.fromisoformat(self.scheduled_end)
+            return datetime.now() > end
+        except:
+            return True
+
+    def requires_fire_watch(self) -> bool:
+        """Check if fire watch is required (hot work permits)"""
+        return self.permit_type == "hot_work" or self.fire_watch_required
+
+
+@dataclass
+class ComplianceRule:
+    """Compliance rule definition - Part of 176-article system"""
+    rule_id: str
+    article_number: str  # e.g., "E.2.1", "E.5.5"
+    title: str
+    description: str
+    category: str  # ComplianceCategory
+    severity: str  # ViolationSeverity if violated
+    conditions: Dict[str, any] = field(default_factory=dict)  # Rule evaluation conditions
+    auto_check: bool = True  # Can be automatically checked
+    check_frequency_hours: int = 24  # How often to check
+    notification_emails: List[str] = field(default_factory=list)
+    escalation_threshold_hours: int = 24  # Hours before escalation
+    is_active: bool = True
+    applies_to: List[str] = field(default_factory=list)  # ["all", "vessels", "marina", "staff"]
+
+    def should_check_now(self, last_check: Optional[datetime] = None) -> bool:
+        """Determine if rule should be checked now"""
+        if not self.auto_check or not self.is_active:
+            return False
+        if last_check is None:
+            return True
+        hours_since_check = (datetime.now() - last_check).total_seconds() / 3600
+        return hours_since_check >= self.check_frequency_hours
+
+
+@dataclass
+class Violation:
+    """Compliance violation record"""
+    violation_id: str
+    rule_id: str
+    article_number: str
+    marina_id: str
+    violation_type: str  # ViolationType
+    severity: str  # ViolationSeverity
+    detected_at: str  # ISO format
+    description: str
+    status: str  # ViolationStatus
+    entity_type: str  # "vessel", "berth", "marina", "staff"
+    entity_id: str  # ID of the violating entity
+    vessel_name: Optional[str] = None
+    berth_id: Optional[str] = None
+    booking_id: Optional[str] = None
+    permit_id: Optional[str] = None
+    insurance_id: Optional[str] = None
+    notified_parties: List[str] = field(default_factory=list)
+    notified_at: Optional[str] = None
+    resolution_notes: Optional[str] = None
+    resolved_at: Optional[str] = None
+    resolved_by: Optional[str] = None
+    escalated_at: Optional[str] = None
+    escalated_to: Optional[str] = None
+    evidence: Dict[str, any] = field(default_factory=dict)
+
+    def is_resolved(self) -> bool:
+        """Check if violation has been resolved"""
+        return self.status == "resolved"
+
+    def hours_since_detection(self) -> float:
+        """Calculate hours since violation was detected"""
+        try:
+            detected = datetime.fromisoformat(self.detected_at)
+            return (datetime.now() - detected).total_seconds() / 3600
+        except:
+            return 0.0
+
+    def should_escalate(self, threshold_hours: int = 24) -> bool:
+        """Check if violation should be escalated"""
+        if self.is_resolved() or self.status == "escalated":
+            return False
+        return self.hours_since_detection() >= threshold_hours
+
+
+@dataclass
+class SecurityIncident:
+    """Security incident record"""
+    incident_id: str
+    marina_id: str
+    incident_type: str  # "unauthorized_access", "theft", "vandalism", "fire", "medical", "other"
+    severity: str  # ViolationSeverity
+    occurred_at: str  # ISO format
+    reported_at: str  # ISO format
+    reported_by: str
+    location: str
+    description: str
+    berth_id: Optional[str] = None
+    vessel_name: Optional[str] = None
+    witnesses: List[str] = field(default_factory=list)
+    authorities_notified: bool = False
+    authority_reference: Optional[str] = None
+    response_actions: List[str] = field(default_factory=list)
+    status: str = "open"  # "open", "investigating", "resolved", "closed"
+    resolved_at: Optional[str] = None
+    resolution_notes: Optional[str] = None
+    evidence_urls: List[str] = field(default_factory=list)
+
+    def is_critical(self) -> bool:
+        """Check if incident is critical"""
+        return self.severity == "critical" or self.incident_type in ["fire", "medical"]
+
+
+@dataclass
+class Document:
+    """Document record for compliance verification"""
+    document_id: str
+    document_type: str  # "insurance", "certificate", "permit", "license", "inspection"
+    entity_type: str  # "vessel", "marina", "staff"
+    entity_id: str
+    title: str
+    issuing_authority: str
+    issue_date: str  # ISO format
+    expiry_date: Optional[str] = None
+    verification_status: str = "pending"  # "pending", "verified", "rejected", "expired"
+    verified_by: Optional[str] = None
+    verified_at: Optional[str] = None
+    file_url: Optional[str] = None
+    file_hash: Optional[str] = None
+    notes: Optional[str] = None
+
+    def is_expired(self) -> bool:
+        """Check if document has expired"""
+        if not self.expiry_date:
+            return False
+        try:
+            expiry = datetime.fromisoformat(self.expiry_date)
+            return datetime.now() > expiry
+        except:
+            return False
+
+    def days_until_expiry(self) -> Optional[int]:
+        """Calculate days until document expires"""
+        if not self.expiry_date:
+            return None
+        try:
+            expiry = datetime.fromisoformat(self.expiry_date)
+            delta = expiry - datetime.now()
+            return delta.days
+        except:
+            return None
