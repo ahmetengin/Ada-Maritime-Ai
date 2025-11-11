@@ -82,25 +82,6 @@ class SeturMockDatabase(DatabaseInterface):
                 ],
                 contact_email="cesme@seturmarinas.com",
                 contact_phone="+90 232 723 1250"
-            ),
-            Marina(
-                marina_id="setur-west-istanbul-001",
-                name="Setur West Istanbul Marina",
-                location="West Istanbul, İstanbul",
-                country="Turkey",
-                total_berths=680,
-                available_berths=198,
-                coordinates={"lat": 40.9777, "lon": 28.7989},
-                amenities=[
-                    "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Technical Service", "Chandlery", "Shower/WC",
-                    "Laundry", "Security 24/7", "Hangar",
-                    "Helicopter Pad", "Bike Rentals", "Bike Parking",
-                    "Repair Yard", "Shopping Center", "Medical Service",
-                    "VIP Lounge", "Conference Rooms"
-                ],
-                contact_email="westistanbul@seturmarinas.com",
-                contact_phone="+90 212 555 1000"
             )
         ]
 
