@@ -391,3 +391,281 @@ class Conflict:
     def __str__(self) -> str:
         """String representation of conflict"""
         return f"Conflict({self.conflict_type}, severity={self.severity}, vessels={len(self.vessel_ids)})"
+
+
+# ============================================================================
+# AIRPORT-STYLE DEPARTURE/ARRIVAL OPERATIONS (Pushback, Taxi, Follow-Me)
+# ============================================================================
+
+class DeparturePhase(Enum):
+    """Departure phases like airport operations"""
+    AT_BERTH = "at_berth"                      # Henüz berth'te
+    PUSHBACK_REQUESTED = "pushback_requested"  # Pushback (palamar botu) talep edildi
+    PUSHBACK_IN_PROGRESS = "pushback_in_progress"  # Palamarlar çözülüyor
+    TAXI_CLEARANCE = "taxi_clearance"          # Marina içi hareket izni
+    TAXIING = "taxiing"                        # Marina içinde hareket ediyor
+    FOLLOW_ME_ACTIVE = "follow_me_active"      # Rehber bot eşlik ediyor
+    HOLDING_POINT = "holding_point"            # Çıkış kanalı girişinde bekliyor
+    DEPARTURE_CLEARANCE = "departure_clearance"  # Çıkış izni alındı
+    DEPARTING = "departing"                    # Çıkış kanalında
+    CLEAR_OF_MARINA = "clear_of_marina"        # Marina sınırından çıktı
+
+
+class ArrivalPhase(Enum):
+    """Arrival phases like airport operations"""
+    APPROACHING = "approaching"                # Marina'ya yaklaşıyor
+    ENTRY_CLEARANCE = "entry_clearance"        # Giriş izni alındı
+    IN_CHANNEL = "in_channel"                  # Giriş kanalında
+    FOLLOW_ME_ASSIGNED = "follow_me_assigned"  # Rehber bot atandı
+    TAXIING_TO_BERTH = "taxiing_to_berth"     # Berth'e doğru hareket
+    MOORING_REQUESTED = "mooring_requested"    # Palamar botu talep edildi
+    MOORING_IN_PROGRESS = "mooring_in_progress"  # Palamar atılıyor
+    DOCKED = "docked"                          # Yanaştı, palamarlar bağlandı
+
+
+@dataclass
+class MooringBoat:
+    """Palamar botu (Pushback truck gibi)"""
+    boat_id: str
+    boat_name: str
+    capacity: int  # Aynı anda kaç tekneye hizmet verebilir
+    current_status: str  # "available", "busy", "maintenance"
+    current_assignment: Optional[str] = None  # Şu anda hangi vessel'a hizmet veriyor
+    location: str = ""
+    equipment: List[str] = field(default_factory=list)  # ["fenders", "lines", "radio"]
+    crew_size: int = 2
+    response_time_minutes: int = 5  # Ortalama ulaşma süresi
+
+    def is_available(self) -> bool:
+        """Check if mooring boat is available"""
+        return self.current_status == "available" and self.current_assignment is None
+
+
+@dataclass
+class PilotBoat:
+    """Rehber bot (Follow-me car gibi)"""
+    boat_id: str
+    boat_name: str
+    current_status: str  # "available", "escorting", "returning", "maintenance"
+    current_vessel_id: Optional[str] = None
+    location: str = ""
+    pilot_name: str = ""
+    vhf_channel: int = 16  # VHF iletişim kanalı
+    max_escort_speed_knots: float = 5.0
+
+    def is_available(self) -> bool:
+        """Check if pilot boat is available"""
+        return self.current_status == "available" and self.current_vessel_id is None
+
+
+@dataclass
+class DepartureChannel:
+    """Çıkış kanalı (Runway gibi)"""
+    channel_id: str
+    channel_name: str
+    width_meters: float
+    depth_meters: float
+    length_meters: float
+    max_vessel_length: float
+    status: str  # "open", "closed", "restricted", "one_way_inbound", "one_way_outbound"
+    current_traffic: List[str] = field(default_factory=list)  # vessel_id'ler
+    max_simultaneous_vessels: int = 1  # Genelde 1, tek yönlü
+    weather_restrictions: List[str] = field(default_factory=list)
+    tide_restrictions: bool = False
+
+    def is_available_for_departure(self) -> bool:
+        """Check if channel is available for departure"""
+        return (self.status in ["open", "one_way_outbound"] and
+                len(self.current_traffic) < self.max_simultaneous_vessels)
+
+    def is_available_for_arrival(self) -> bool:
+        """Check if channel is available for arrival"""
+        return (self.status in ["open", "one_way_inbound"] and
+                len(self.current_traffic) < self.max_simultaneous_vessels)
+
+
+@dataclass
+class DepartureSequence:
+    """
+    Departure operation sequence (Airport-style)
+    Tüm ayrılış sürecini takip eder
+    """
+    sequence_id: str
+    vessel_id: str
+    berth_id: str
+    terminal_id: str
+
+    # Timing
+    requested_departure_time: datetime
+    actual_departure_time: Optional[datetime] = None
+
+    # Phase tracking
+    current_phase: DeparturePhase = DeparturePhase.AT_BERTH
+    phase_history: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Resources
+    mooring_boat_id: Optional[str] = None
+    pilot_boat_id: Optional[str] = None
+    departure_channel_id: Optional[str] = None
+
+    # Communication
+    vhf_channel: int = 16
+    clearances: List[str] = field(default_factory=list)  # İzinler
+
+    # Status
+    status: str = "scheduled"  # "scheduled", "in_progress", "completed", "cancelled"
+    delays: List[Dict[str, Any]] = field(default_factory=list)
+    notes: List[str] = field(default_factory=list)
+
+    def update_phase(self, new_phase: DeparturePhase, timestamp: Optional[datetime] = None):
+        """Update departure phase and record history"""
+        if timestamp is None:
+            timestamp = datetime.now()
+
+        old_phase_time = self._get_last_phase_time()
+
+        self.phase_history.append({
+            "phase": self.current_phase.value,
+            "timestamp": timestamp.isoformat(),
+            "duration_seconds": (timestamp - old_phase_time).total_seconds()
+        })
+
+        self.current_phase = new_phase
+
+    def _get_last_phase_time(self) -> datetime:
+        """Get timestamp of last phase change"""
+        if self.phase_history:
+            return datetime.fromisoformat(self.phase_history[-1]["timestamp"])
+        return datetime.now()
+
+    def add_clearance(self, clearance: str):
+        """Add clearance to list"""
+        self.clearances.append(f"{datetime.now().isoformat()}: {clearance}")
+
+    def add_delay(self, reason: str, duration_minutes: int):
+        """Record a delay"""
+        self.delays.append({
+            "reason": reason,
+            "duration_minutes": duration_minutes,
+            "timestamp": datetime.now().isoformat()
+        })
+
+    @property
+    def total_delay_minutes(self) -> int:
+        """Calculate total delay"""
+        return sum(d["duration_minutes"] for d in self.delays)
+
+    @property
+    def estimated_completion_time(self) -> datetime:
+        """Estimate when departure will be complete"""
+        # Ortalama süre: Pushback (5min) + Taxi (10min) + Departure (5min) = 20min
+        base_duration = timedelta(minutes=20)
+        delay_duration = timedelta(minutes=self.total_delay_minutes)
+
+        return self.requested_departure_time + base_duration + delay_duration
+
+
+@dataclass
+class ArrivalSequence:
+    """
+    Arrival operation sequence (Airport-style)
+    Tüm varış sürecini takip eder
+    """
+    sequence_id: str
+    vessel_id: str
+    destination_berth_id: str
+    terminal_id: str
+
+    # Timing
+    estimated_arrival_time: datetime
+    actual_arrival_time: Optional[datetime] = None
+
+    # Phase tracking
+    current_phase: ArrivalPhase = ArrivalPhase.APPROACHING
+    phase_history: List[Dict[str, Any]] = field(default_factory=list)
+
+    # Resources
+    pilot_boat_id: Optional[str] = None
+    mooring_boat_id: Optional[str] = None
+    arrival_channel_id: Optional[str] = None
+
+    # Communication
+    vhf_channel: int = 16
+    clearances: List[str] = field(default_factory=list)
+
+    # Status
+    status: str = "scheduled"  # "scheduled", "in_progress", "completed", "cancelled"
+    delays: List[Dict[str, Any]] = field(default_factory=list)
+    notes: List[str] = field(default_factory=list)
+
+    def update_phase(self, new_phase: ArrivalPhase):
+        """Update arrival phase"""
+        self.phase_history.append({
+            "phase": self.current_phase.value,
+            "timestamp": datetime.now().isoformat()
+        })
+        self.current_phase = new_phase
+
+    def add_clearance(self, clearance: str):
+        """Add clearance"""
+        self.clearances.append(f"{datetime.now().isoformat()}: {clearance}")
+
+
+@dataclass
+class MarinaControl:
+    """
+    Marina kontrol kulesi (Airport control tower gibi)
+    Tüm giriş-çıkış trafiğini yönetir
+    """
+    control_id: str
+    marina_id: str
+    primary_vhf_channel: int = 16
+    secondary_vhf_channel: int = 71
+
+    # Active operations
+    active_departures: List[str] = field(default_factory=list)  # DepartureSequence IDs
+    active_arrivals: List[str] = field(default_factory=list)    # ArrivalSequence IDs
+
+    # Resources
+    available_mooring_boats: List[str] = field(default_factory=list)
+    available_pilot_boats: List[str] = field(default_factory=list)
+
+    # Channel status
+    departure_channels: List[str] = field(default_factory=list)
+    arrival_channels: List[str] = field(default_factory=list)
+
+    # Traffic management
+    departure_queue: List[str] = field(default_factory=list)  # Vessel IDs waiting to depart
+    arrival_queue: List[str] = field(default_factory=list)    # Vessel IDs waiting to arrive
+
+    # Weather and conditions
+    current_weather: Optional[str] = None
+    wind_speed_knots: float = 0.0
+    visibility_meters: float = 10000.0
+    operations_status: str = "normal"  # "normal", "restricted", "closed"
+
+    def can_clear_departure(self, vessel_id: str) -> Tuple[bool, str]:
+        """Check if vessel can be cleared for departure"""
+        if self.operations_status == "closed":
+            return False, "Marina operations closed due to weather"
+
+        if not self.available_mooring_boats:
+            return False, "No mooring boats available"
+
+        if not self.departure_channels:
+            return False, "No departure channels available"
+
+        return True, "Cleared for departure"
+
+    def can_clear_arrival(self, vessel_id: str) -> Tuple[bool, str]:
+        """Check if vessel can be cleared for arrival"""
+        if self.operations_status == "closed":
+            return False, "Marina operations closed due to weather"
+
+        if not self.available_pilot_boats:
+            return False, "No pilot boats available - hold position"
+
+        if not self.arrival_channels:
+            return False, "No arrival channels available - hold outside marina"
+
+        return True, "Cleared for arrival"
