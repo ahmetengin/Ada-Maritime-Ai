@@ -1,4 +1,96 @@
-# Ada Maritime AI
+# ⚓ Ada Maritime AI - Multi-Region Marina Management System
+
+AI-powered comprehensive marina management platform for Turkey, Greece, and Mediterranean region.
+
+[🇹🇷 Türkçe Dokümantasyon](./README_TR.md)
+
+## 🌟 Key Features
+
+### 🗺️ Multi-Region Marina Management
+- **13 Marinas** managing 7,000+ berths
+- **4 Countries:** Turkey, Greece, Croatia, Italy
+- Real-time occupancy and availability tracking
+- Multi-currency pricing (EUR, USD, TRY, GBP, CHF)
+
+### ⚓ Smart Berth Management
+- Advanced search and filtering
+- Automatic suitability checking
+- Dynamic pricing (seasonal)
+- Instant reservation system
+- AI-powered berth recommendations
+
+### 📊 Analytics & Reporting
+- Occupancy rate reports
+- Revenue analysis and forecasting
+- Regional performance comparison
+- KPI tracking dashboard
+- Customer behavior insights
+
+### 🌤️ Weather Integration
+- Location-specific weather data
+- 5-day forecasts
+- Sailing conditions analysis
+- Weather alerts and warnings
+
+### 🔧 Maintenance Management
+- Maintenance scheduling and tracking
+- Berth status management
+- Cost tracking
+- Automated notifications
+
+### 🤖 AI Assistant
+- Claude Sonnet 4.5 powered
+- Natural language processing (Turkish & English)
+- Smart booking assistance
+- Automated reporting
+
+## 📍 Covered Marinas
+
+### 🇹🇷 Turkey (5 Marinas)
+- **Setur Bodrum Marina** - Bodrum, Muğla (450 berths)
+- **Setur Kuşadası Marina** - Kuşadası, Aydın (580 berths)
+- **Setur Çeşme Marina** - Çeşme, İzmir (380 berths)
+- **Kalamış Marina** - Istanbul, Kadıköy (720 berths)
+- **Netsel Marmaris Marina** - Marmaris, Muğla (750 berths)
+
+### 🇬🇷 Greece (6 Marinas)
+- **Alimos Marina** - Athens (1,100 berths)
+- **Flisvos Marina** - Athens (303 berths)
+- **Gouvia Marina** - Corfu (1,235 berths)
+- **Mandraki Marina** - Rhodes (250 berths)
+- **Ornos Bay Marina** - Mykonos (180 berths)
+- **Vlychada Marina** - Santorini (116 berths)
+
+### 🇭🇷 Croatia (1 Marina)
+- **ACI Marina Dubrovnik** - Dubrovnik (380 berths)
+
+### 🇮🇹 Italy (1 Marina)
+- **Marina di Porto Cervo** - Sardinia (700 berths)
+
+**TOTAL: 13 Marinas, 7,000+ Berths**
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.9+
+- pip
+- Docker (optional, for databases)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ahmetengin/Ada-Maritime-Ai.git
+cd Ada-Maritime-Ai
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate  # Windows
+
+# Install dependencies
+pip install -r requirements.txt
 
 ⚓ Setur Marina POC - AI-powered marina management system with multi-agent orchestration
 
@@ -10,7 +102,18 @@
 - **Multi-Agent Observability**: Real-time monitoring and visualization of agent workflows
 - **Database Integration**: Mock Setur Marina database with comprehensive data models
 
-## Quick Start
+```
+Ada-Maritime-Ai/
+├── backend/
+│   ├── database/          # Data models and database layer
+│   ├── skills/            # Modular skill system
+│   ├── orchestrator/      # AI orchestration
+│   ├── utils/             # Utilities (currency converter, etc.)
+│   └── services/          # Supporting services
+├── app.py                 # Streamlit web application
+├── requirements.txt       # Python dependencies
+└── docker-compose.yml     # Infrastructure setup
+```
 
 ### Main Application
 
