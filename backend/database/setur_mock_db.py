@@ -36,6 +36,7 @@ class SeturMockDatabase(DatabaseInterface):
     def _create_mock_marinas(self) -> List[Marina]:
         """Create mock marina data"""
         return [
+            # ============ SETUR MARINAS ============
             Marina(
                 marina_id="setur-bodrum-001",
                 name="Setur Bodrum Marina",
@@ -316,6 +317,11 @@ class SeturMockDatabase(DatabaseInterface):
         bookings = [b for b in self.bookings if b.marina_id == marina_id]
         logger.debug(f"Found {len(bookings)} bookings for marina: {marina_id}")
         return bookings
+
+    def get_all_berths(self) -> List[Berth]:
+        """Get all berths"""
+        logger.debug(f"Returning {len(self.berths)} berths")
+        return self.berths
 
 
 # Singleton instance

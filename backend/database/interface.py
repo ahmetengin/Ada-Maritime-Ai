@@ -1,10 +1,10 @@
-"""Database interface for Ada Maritime AI"""
+"""Database interface for Ada Maritime AI - Airport-Style Parallel Operations"""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 
-from .models import Berth, Booking, Marina
+from .models import Berth, Booking, Marina, Vessel, Gate, Terminal, ServiceQueue, TrafficData, GateAssignment
 
 
 class DatabaseInterface(ABC):
@@ -63,4 +63,9 @@ class DatabaseInterface(ABC):
     @abstractmethod
     def get_bookings_by_marina(self, marina_id: str) -> List[Booking]:
         """Get all bookings for a marina"""
+        pass
+
+    @abstractmethod
+    def get_all_berths(self) -> List[Berth]:
+        """Get all berths"""
         pass
