@@ -142,6 +142,79 @@ class SeturMockDatabase(DatabaseInterface):
                 contact_phone="+90 252 412 2708"
             ),
 
+            # D-Marin Group - International Marina Management
+            Marina(
+                marina_id="dmarin-turgutreis-001",
+                name="D-Marin Turgutreis",
+                location="Turgutreis, Bodrum, Muğla",
+                country="Turkey",
+                total_berths=530,
+                available_berths=142,
+                coordinates={"lat": 37.0011, "lon": 27.2497},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Pool",
+                    "Fitness Center", "Kids Club", "Beach Club"
+                ],
+                contact_email="turgutreis@d-marin.com",
+                contact_phone="+90 252 382 8300"
+            ),
+            Marina(
+                marina_id="dmarin-gocek-001",
+                name="D-Marin Göcek",
+                location="Göcek, Fethiye, Muğla",
+                country="Turkey",
+                total_berths=380,
+                available_berths=89,
+                coordinates={"lat": 36.7558, "lon": 28.9439},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Swimming Pool",
+                    "Yacht Club", "Conference Facilities"
+                ],
+                contact_email="gocek@d-marin.com",
+                contact_phone="+90 252 645 1350"
+            ),
+            Marina(
+                marina_id="dmarin-didim-001",
+                name="D-Marin Didim",
+                location="Didim, Aydın",
+                country="Turkey",
+                total_berths=620,
+                available_berths=176,
+                coordinates={"lat": 37.3650, "lon": 27.2681},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Pool",
+                    "Spa", "Gym", "Beach Access", "Water Sports"
+                ],
+                contact_email="didim@d-marin.com",
+                contact_phone="+90 256 811 6060"
+            ),
+            Marina(
+                marina_id="dmarin-fethiye-001",
+                name="D-Marin Fethiye",
+                location="Fethiye, Muğla",
+                country="Turkey",
+                total_berths=290,
+                available_berths=67,
+                coordinates={"lat": 36.6414, "lon": 29.1081},
+                amenities=[
+                    "Restaurant", "Bar", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Pool"
+                ],
+                contact_email="fethiye@d-marin.com",
+                contact_phone="+90 252 612 9820"
+            ),
+
             # West Istanbul Marina - Independent Premium Marina
             Marina(
                 marina_id="west-istanbul-001",
