@@ -1,10 +1,10 @@
-"""Database interface for Ada Maritime AI"""
+"""Database interface for Ada Maritime AI - Airport-Style Parallel Operations"""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 from datetime import datetime
 
-from .models import Berth, Booking, Marina
+from .models import Berth, Booking, Marina, Vessel, Gate, Terminal, ServiceQueue, TrafficData, GateAssignment
 
 
 class DatabaseInterface(ABC):
