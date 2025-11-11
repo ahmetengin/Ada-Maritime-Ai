@@ -36,7 +36,26 @@ class SeturMockDatabase(DatabaseInterface):
     def _create_mock_marinas(self) -> List[Marina]:
         """Create mock marina data for multiple marina networks"""
         return [
-            # Setur Marinas Network
+            # Setur Marinas Network - Turkey's Leading Marina Chain
+
+            Marina(
+                marina_id="setur-kalamis-001",
+                name="Setur Kalamış Marina",
+                location="Kalamış, İstanbul",
+                country="Turkey",
+                total_berths=1508,
+                available_berths=347,
+                coordinates={"lat": 40.9667, "lon": 29.0333},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Sailing School",
+                    "Yacht Club", "Conference Rooms", "Parking"
+                ],
+                contact_email="kalamis@seturmarinas.com",
+                contact_phone="+90 216 346 5420"
+            ),
             Marina(
                 marina_id="setur-bodrum-001",
                 name="Setur Bodrum Marina",
@@ -48,7 +67,8 @@ class SeturMockDatabase(DatabaseInterface):
                 amenities=[
                     "Restaurant", "Bar", "Wifi", "Fuel Station",
                     "Technical Service", "Chandlery", "Shower/WC",
-                    "Laundry", "Security 24/7"
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service"
                 ],
                 contact_email="bodrum@seturmarinas.com",
                 contact_phone="+90 252 316 1860"
@@ -64,7 +84,8 @@ class SeturMockDatabase(DatabaseInterface):
                 amenities=[
                     "Restaurant", "Pool", "Spa", "Wifi",
                     "Fuel Station", "Repair Yard", "Shopping Center",
-                    "Medical Service"
+                    "Medical Service", "Technical Service", "Chandlery",
+                    "Shower/WC", "Laundry", "Security 24/7"
                 ],
                 contact_email="kusadasi@seturmarinas.com",
                 contact_phone="+90 256 618 1150"
@@ -79,10 +100,46 @@ class SeturMockDatabase(DatabaseInterface):
                 coordinates={"lat": 38.3190, "lon": 26.3020},
                 amenities=[
                     "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Technical Service", "Sailing School"
+                    "Technical Service", "Sailing School", "Chandlery",
+                    "Shower/WC", "Laundry", "Security 24/7"
                 ],
                 contact_email="cesme@seturmarinas.com",
                 contact_phone="+90 232 723 1250"
+            ),
+            Marina(
+                marina_id="setur-fethiye-ece-001",
+                name="Setur Fethiye Ece Marina",
+                location="Fethiye, Muğla",
+                country="Turkey",
+                total_berths=420,
+                available_berths=98,
+                coordinates={"lat": 36.6226, "lon": 29.1164},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Pool"
+                ],
+                contact_email="fethiye@seturmarinas.com",
+                contact_phone="+90 252 612 5070"
+            ),
+            Marina(
+                marina_id="setur-netsel-marmaris-001",
+                name="Setur Netsel Marina Marmaris",
+                location="Marmaris, Muğla",
+                country="Turkey",
+                total_berths=750,
+                available_berths=167,
+                coordinates={"lat": 36.8537, "lon": 28.2694},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Yacht Club",
+                    "Pool", "Gym", "Spa", "Conference Rooms"
+                ],
+                contact_email="netsel@seturmarinas.com",
+                contact_phone="+90 252 412 2708"
             ),
 
             # West Istanbul Marina - Independent Premium Marina
