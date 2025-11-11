@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 import random
 
-from .base_skill import BaseSkill
+from .base_skill import BaseSkill, SkillMetadata
 from ..database.models import Weather
 from ..database.interface import DatabaseInterface
 from ..logger import setup_logger
@@ -17,12 +17,18 @@ class WeatherSkill(BaseSkill):
     """Skill for retrieving and analyzing weather information for marinas"""
 
     def __init__(self, database: DatabaseInterface):
-        super().__init__()
         self.database = database
-        self.name = "weather"
-        self.description = "Get weather information and forecasts for marina locations"
-        self.version = "1.0.0"
-        self.author = "Ada Maritime AI"
+        super().__init__()
+
+    def get_metadata(self) -> SkillMetadata:
+        """Return skill metadata"""
+        return SkillMetadata(
+            name="weather",
+            description="Get weather information and forecasts for marina locations",
+            version="1.0.0",
+            author="Ada Maritime AI",
+            requires_database=True
+        )
 
     async def execute(self, operation: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """

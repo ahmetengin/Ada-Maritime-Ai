@@ -100,11 +100,11 @@ def initialize_system():
 
     logger.info("System initialized successfully")
 
-    return db, orchestrator
+    return db, orchestrator, analytics_skill
 
 
 # Initialize system
-database, orchestrator = initialize_system()
+database, orchestrator, analytics_skill = initialize_system()
 currency_converter = get_currency_converter()
 
 
@@ -397,7 +397,7 @@ def show_analytics_page():
             with st.spinner("Rapor hazırlanıyor..."):
                 # Get occupancy report
                 result = asyncio.run(
-                    database.analytics_skill.execute("occupancy_report", {})
+                    analytics_skill.execute("occupancy_report", {})
                 )
 
                 if result.get("success"):

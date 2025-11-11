@@ -850,6 +850,11 @@ class MediterraneanDatabase(DatabaseInterface):
         logger.debug(f"Found {len(bookings)} bookings for marina: {marina_id}")
         return bookings
 
+    def get_all_berths(self) -> List[Berth]:
+        """Get all berths"""
+        logger.debug(f"Returning {len(self.berths)} berths")
+        return self.berths
+
 
 # Singleton instance
 _db_instance: Optional[MediterraneanDatabase] = None

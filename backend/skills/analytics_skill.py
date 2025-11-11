@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 from collections import defaultdict
 
-from .base_skill import BaseSkill
+from .base_skill import BaseSkill, SkillMetadata
 from ..database.interface import DatabaseInterface
 from ..utils.currency_converter import get_currency_converter
 from ..logger import setup_logger
@@ -17,13 +17,19 @@ class AnalyticsSkill(BaseSkill):
     """Skill for analytics and reporting across all marinas"""
 
     def __init__(self, database: DatabaseInterface):
-        super().__init__()
         self.database = database
-        self.name = "analytics"
-        self.description = "Generate analytics and reports for marina operations"
-        self.version = "1.0.0"
-        self.author = "Ada Maritime AI"
         self.currency_converter = get_currency_converter()
+        super().__init__()
+
+    def get_metadata(self) -> SkillMetadata:
+        """Return skill metadata"""
+        return SkillMetadata(
+            name="analytics",
+            description="Generate analytics and reports for marina operations",
+            version="1.0.0",
+            author="Ada Maritime AI",
+            requires_database=True
+        )
 
     async def execute(self, operation: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -82,7 +88,7 @@ class AnalyticsSkill(BaseSkill):
 
         for marina in marinas:
             # Get berths for this marina
-            berths = [b for b in self.database.berths if b.marina_id == marina.marina_id]
+            berths = [b for b in self.database.get_all_berths() if b.marina_id == marina.marina_id]
 
             # Calculate occupancy
             total_berths = len(berths)
@@ -341,7 +347,7 @@ class AnalyticsSkill(BaseSkill):
             return {"success": False, "error": f"Marina {marina_id} not found"}
 
         # Get berths
-        berths = [b for b in self.database.berths if b.marina_id == marina_id]
+        berths = [b for b in self.database.get_all_berths() if b.marina_id == marina_id]
 
         # Get bookings
         bookings = self.database.get_bookings_by_marina(marina_id)

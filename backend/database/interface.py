@@ -64,3 +64,8 @@ class DatabaseInterface(ABC):
     def get_bookings_by_marina(self, marina_id: str) -> List[Booking]:
         """Get all bookings for a marina"""
         pass
+
+    @abstractmethod
+    def get_all_berths(self) -> List[Berth]:
+        """Get all berths"""
+        pass

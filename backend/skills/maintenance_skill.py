@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 import random
 
-from .base_skill import BaseSkill
+from .base_skill import BaseSkill, SkillMetadata
 from ..database.models import MaintenanceRecord, MaintenanceStatus
 from ..database.interface import DatabaseInterface
 from ..logger import setup_logger
@@ -17,13 +17,19 @@ class MaintenanceSkill(BaseSkill):
     """Skill for managing marina maintenance operations"""
 
     def __init__(self, database: DatabaseInterface):
-        super().__init__()
         self.database = database
-        self.name = "maintenance"
-        self.description = "Manage maintenance schedules and records for marinas"
-        self.version = "1.0.0"
-        self.author = "Ada Maritime AI"
         self.maintenance_records: List[MaintenanceRecord] = []
+        super().__init__()
+
+    def get_metadata(self) -> SkillMetadata:
+        """Return skill metadata"""
+        return SkillMetadata(
+            name="maintenance",
+            description="Manage maintenance schedules and records for marinas",
+            version="1.0.0",
+            author="Ada Maritime AI",
+            requires_database=True
+        )
 
     async def execute(self, operation: str, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """
