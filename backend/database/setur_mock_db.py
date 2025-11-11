@@ -34,8 +34,9 @@ class SeturMockDatabase(DatabaseInterface):
         )
 
     def _create_mock_marinas(self) -> List[Marina]:
-        """Create mock marina data"""
+        """Create mock marina data for multiple marina networks"""
         return [
+            # Setur Marinas Network
             Marina(
                 marina_id="setur-bodrum-001",
                 name="Setur Bodrum Marina",
@@ -82,6 +83,28 @@ class SeturMockDatabase(DatabaseInterface):
                 ],
                 contact_email="cesme@seturmarinas.com",
                 contact_phone="+90 232 723 1250"
+            ),
+
+            # West Istanbul Marina - Independent Premium Marina
+            Marina(
+                marina_id="west-istanbul-001",
+                name="West Istanbul Marina",
+                location="West Istanbul, İstanbul",
+                country="Turkey",
+                total_berths=680,
+                available_berths=198,
+                coordinates={"lat": 40.9777, "lon": 28.7989},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Hangar Facilities",
+                    "Helicopter Pad", "Bike Rentals", "Bike Parking",
+                    "Repair Yard", "Shopping Center", "Medical Service",
+                    "VIP Lounge", "Conference Rooms", "Business Center",
+                    "Customs Office"
+                ],
+                contact_email="info@westistanbulmarina.com",
+                contact_phone="+90 212 886 9000"
             )
         ]
 
