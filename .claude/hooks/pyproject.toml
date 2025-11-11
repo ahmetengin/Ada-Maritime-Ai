@@ -1,0 +1,12 @@
+[project]
+name = "ada-maritime-observability-hooks"
+version = "1.0.0"
+description = "Observability hooks for Ada Maritime AI"
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.31.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

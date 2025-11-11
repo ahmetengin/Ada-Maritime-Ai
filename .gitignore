@@ -38,3 +38,13 @@ docker-compose.override.yml
 *.tmp
 tmp/
 temp/
+
+# Node.js / Bun (Observability apps)
+node_modules/
+dist/
+*.tsbuildinfo
+.bun/
+
+# Observability
+apps/server/observability.db*
+apps/client/.env.local
