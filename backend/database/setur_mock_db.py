@@ -141,6 +141,24 @@ class SeturMockDatabase(DatabaseInterface):
                 contact_email="netsel@seturmarinas.com",
                 contact_phone="+90 252 412 2708"
             ),
+            Marina(
+                marina_id="setur-midilli-001",
+                name="Setur Midilli Marina (Lesvos)",
+                location="Midilli (Lesbos)",
+                country="Greece",
+                total_berths=350,
+                available_berths=82,
+                coordinates={"lat": 39.1065, "lon": 26.5556},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "International Customs",
+                    "Sailing School"
+                ],
+                contact_email="lesvos@seturmarinas.com",
+                contact_phone="+30 225 102 0000"
+            ),
 
             # D-Marin Group - International Marina Management
             Marina(
