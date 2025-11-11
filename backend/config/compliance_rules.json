@@ -1,0 +1,662 @@
+{
+  "compliance_system": {
+    "name": "Marina 176-Article Compliance System",
+    "version": "1.0.0",
+    "based_on": "West Istanbul Marina Operation Regulations",
+    "last_updated": "2025-11-11"
+  },
+  "rules": [
+    {
+      "rule_id": "E.2.1",
+      "article_number": "E.2.1",
+      "title": "Third-Party Financial Liability Insurance Requirement",
+      "description": "All yachts must be covered under applicable Third-Party Financial Liability insurance in an amount determined by the Company. Insurance must be provided by a prestigious insurance company and a copy must be delivered before any certificate of permission is issued.",
+      "category": "insurance_and_liability",
+      "severity": "critical",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "insurance_required": true,
+        "min_coverage_amount": 1000000,
+        "currency": "EUR",
+        "must_be_valid": true,
+        "must_have_document": true
+      },
+      "violation_actions": [
+        "Contract automatically cancelled",
+        "Yacht removed from Marina",
+        "All removal expenses charged to Yacht Owner"
+      ],
+      "notification_emails": ["security@marina.com", "compliance@marina.com"]
+    },
+    {
+      "rule_id": "E.5.5",
+      "article_number": "E.5.5",
+      "title": "Hot Work Safety Requirements",
+      "description": "During any hot works (wood, paint, varnish, welding, grinding, sanding, scraping) all necessary measures must be taken to prevent other yachts and facilities from being polluted and damaged. Works without proper measures will be interrupted immediately.",
+      "category": "safety",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 1,
+      "applies_to": ["vessels", "marina"],
+      "conditions": {
+        "permit_required": true,
+        "safety_equipment_required": true,
+        "fire_watch_required": true,
+        "safety_zone_required": true,
+        "protective_measures_required": true
+      },
+      "violation_actions": [
+        "Work immediately interrupted",
+        "Detailed damage report created",
+        "Immediate indemnification by Yacht Owner",
+        "Potential marina access ban"
+      ],
+      "notification_emails": ["safety@marina.com", "operations@marina.com"]
+    },
+    {
+      "rule_id": "E.1.1",
+      "article_number": "E.1.1",
+      "title": "Entry-Exit Documentation and Procedures",
+      "description": "Yacht Owner must know legislation and take necessary precautions for entry/exit into Turkish territorial waters, prepare necessary information and valid documents regarding Yacht, Owner, Crew and Customers.",
+      "category": "administrative",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 48,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "registration_certificate_required": true,
+        "transit_log_required": true,
+        "crew_documentation_required": true,
+        "customs_clearance_required": true
+      },
+      "notification_emails": ["admin@marina.com"]
+    },
+    {
+      "rule_id": "E.1.2",
+      "article_number": "E.1.2",
+      "title": "Duration of Stay in Turkey - Foreign Flag Yachts",
+      "description": "Foreign-flag yachts may stay up to two years in Turkey for maintenance, repair, docking or wintering purposes. Contract must be renewed annually or yacht will be subject to customs expropriation procedures.",
+      "category": "administrative",
+      "severity": "critical",
+      "auto_check": true,
+      "check_frequency_hours": 168,
+      "escalation_threshold_hours": 336,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "max_stay_years": 2,
+        "annual_renewal_required": true,
+        "customs_compliance_required": true
+      },
+      "notification_emails": ["admin@marina.com", "compliance@marina.com"]
+    },
+    {
+      "rule_id": "E.1.4",
+      "article_number": "E.1.4",
+      "title": "Mooring Agreement and Documentation",
+      "description": "Yacht Owner must fill out and sign complete Mooring Agreement before entry. Must present valid Tonnage Certificate, Seaworthiness Certificate, Insurance policy, and proof of signatory competency.",
+      "category": "administrative",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "mooring_agreement_required": true,
+        "tonnage_certificate_required": true,
+        "seaworthiness_certificate_required": true,
+        "insurance_policy_required": true,
+        "signatory_proof_required": true
+      },
+      "notification_emails": ["admin@marina.com"]
+    },
+    {
+      "rule_id": "E.2.10",
+      "article_number": "E.2.10",
+      "title": "Fire Prevention and Fire Extinguishing Equipment",
+      "description": "Yacht Owner must take all necessary measures to avoid fire occurrence and keep registered fire extinguishing devices as determined by legal regulations. At least one fire extinguisher must be visible and easily accessible.",
+      "category": "safety",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 168,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "fire_extinguisher_required": true,
+        "min_fire_extinguishers": 1,
+        "must_be_registered": true,
+        "must_be_accessible": true,
+        "must_be_visible": true
+      },
+      "notification_emails": ["safety@marina.com"]
+    },
+    {
+      "rule_id": "E.2.13",
+      "article_number": "E.2.13",
+      "title": "Waste Water Management",
+      "description": "For yachts without waste water tanks, it is forbidden to use toilets and bathrooms while in Marina. Forbidden to wash dishes/clothes or wash yacht with detergent. Must use Marina facilities.",
+      "category": "environmental",
+      "severity": "medium",
+      "auto_check": false,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 4,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "waste_water_tank_required": true,
+        "marina_facilities_must_be_used": true,
+        "detergent_use_prohibited": true
+      },
+      "violation_actions": [
+        "Cleaning fees collected from Yacht Owner",
+        "Potential contract termination"
+      ],
+      "notification_emails": ["environmental@marina.com"]
+    },
+    {
+      "rule_id": "E.2.14",
+      "article_number": "E.2.14",
+      "title": "Hazardous Materials Storage and Handling",
+      "description": "No fuel, flammable, toxic or hazardous substances can be brought into Marina unless in safe, impermeable, durable containers. Must comply with all regulations and Health & Safety policy. Chemical substances cannot be pumped into Marina or sea.",
+      "category": "environmental",
+      "severity": "critical",
+      "auto_check": false,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 1,
+      "applies_to": ["vessels", "marina"],
+      "conditions": {
+        "safe_containers_required": true,
+        "proper_drainage_required": true,
+        "proper_ventilation_required": true,
+        "discharge_prohibited": true,
+        "declaration_required": true
+      },
+      "violation_actions": [
+        "Official authorities notified immediately",
+        "Legal procedures initiated",
+        "Marina access ban"
+      ],
+      "notification_emails": ["safety@marina.com", "environmental@marina.com", "compliance@marina.com"]
+    },
+    {
+      "rule_id": "E.3.1",
+      "article_number": "E.3.1",
+      "title": "Launching-Lifting Yacht Condition Liability",
+      "description": "Loss and damage from breaking of decayed or weak yacht parts, drop keel separation, during travel lift transportation are not covered by Financial Liability Insurance and not Company responsibility.",
+      "category": "operational",
+      "severity": "medium",
+      "auto_check": false,
+      "check_frequency_hours": 0,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "yacht_must_be_seaworthy": true,
+        "pre_inspection_recommended": true,
+        "yacht_owner_responsibility": true
+      },
+      "notification_emails": ["operations@marina.com"]
+    },
+    {
+      "rule_id": "E.3.2",
+      "article_number": "E.3.2",
+      "title": "Company Liability for Lifting Equipment Failure",
+      "description": "Company guarantees and is responsible for loss/damage from travel lift insufficiency/failure or personnel negligence during launching/lifting, finalized by court decree proving Company fault.",
+      "category": "operational",
+      "severity": "high",
+      "auto_check": false,
+      "check_frequency_hours": 0,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["marina"],
+      "conditions": {
+        "equipment_maintenance_required": true,
+        "personnel_training_required": true,
+        "insurance_coverage_active": true
+      },
+      "notification_emails": ["operations@marina.com", "legal@marina.com"]
+    },
+    {
+      "rule_id": "E.5.1",
+      "article_number": "E.5.1",
+      "title": "Owner-Employed Maintenance Staff Liability",
+      "description": "If Yacht Owner employs their own staff for maintenance/repair instead of Marina personnel, any loss/damage from their work is not Marina responsibility and not covered by Company Financial Liability Insurance.",
+      "category": "operational",
+      "severity": "medium",
+      "auto_check": false,
+      "check_frequency_hours": 0,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "owner_assumes_liability": true,
+        "third_party_insurance_recommended": true
+      },
+      "notification_emails": ["operations@marina.com"]
+    },
+    {
+      "rule_id": "E.5.3",
+      "article_number": "E.5.3",
+      "title": "Fire Safety During Maintenance-Repair",
+      "description": "Yacht Owner must take all measures to avoid fire during maintenance-repair. Strictly forbidden to keep explosive substances on board. Forbidden to bring LPG cylinders or keep highly flammable substances.",
+      "category": "safety",
+      "severity": "critical",
+      "auto_check": true,
+      "check_frequency_hours": 4,
+      "escalation_threshold_hours": 1,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "no_explosives_allowed": true,
+        "no_lpg_cylinders_allowed": true,
+        "flammable_substances_restricted": true,
+        "fire_prevention_measures_required": true
+      },
+      "violation_actions": [
+        "Yacht Owner assumes all liability",
+        "Potential immediate removal from Marina"
+      ],
+      "notification_emails": ["safety@marina.com", "security@marina.com"]
+    },
+    {
+      "rule_id": "E.5.7",
+      "article_number": "E.5.7",
+      "title": "Subcontractor Approval and Entry Requirements",
+      "description": "Subcontractors hired by Yacht Owners for maintenance/repair are subject to Marina Management approval. Must be issued Temporary Entry card and sign for it.",
+      "category": "security",
+      "severity": "medium",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels", "staff"],
+      "conditions": {
+        "management_approval_required": true,
+        "temporary_entry_card_required": true,
+        "signature_required": true
+      },
+      "notification_emails": ["security@marina.com", "admin@marina.com"]
+    },
+    {
+      "rule_id": "E.5.8",
+      "article_number": "E.5.8",
+      "title": "Work Permits and Third-Party Liability Insurance for Repairs",
+      "description": "Without prior written Company permission, no work other than simple routine repair/maintenance may be done by Owner/captain/crew/family/subcontractor. Workers must submit Third-Party Liability Insurance policy before commencing work.",
+      "category": "permits_and_licenses",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 12,
+      "applies_to": ["vessels", "staff"],
+      "conditions": {
+        "written_permission_required": true,
+        "insurance_policy_required": true,
+        "adequate_coverage_required": true,
+        "work_permit_cancellable": true
+      },
+      "violation_actions": [
+        "Work cannot be started",
+        "Permission cancelled if insufficient coverage"
+      ],
+      "notification_emails": ["operations@marina.com", "compliance@marina.com"]
+    },
+    {
+      "rule_id": "E.5.9",
+      "article_number": "E.5.9",
+      "title": "Approved Subcontractors and Entry Fees",
+      "description": "Yacht owner cannot use subcontractors not approved by Company. Approved subcontractors charged entrance fee and/or commission against work permit. Applies to both dry dock and sea area.",
+      "category": "administrative",
+      "severity": "medium",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels", "marina"],
+      "conditions": {
+        "company_approval_required": true,
+        "entrance_fee_required": true,
+        "work_permit_required": true,
+        "subcontractor_agreement_required": true
+      },
+      "notification_emails": ["admin@marina.com", "operations@marina.com"]
+    },
+    {
+      "rule_id": "F.13",
+      "article_number": "F.13",
+      "title": "Waste Disposal Regulations",
+      "description": "Forbidden to dispose waste materials (bilge, sewage, waste oil, batteries, oil filters, organic/recyclable wastes) outside designated areas. Violations result in pollution fees per Istanbul Metropolitan Municipality tariff and reporting to official bodies.",
+      "category": "environmental",
+      "severity": "critical",
+      "auto_check": true,
+      "check_frequency_hours": 12,
+      "escalation_threshold_hours": 2,
+      "applies_to": ["vessels", "marina"],
+      "conditions": {
+        "designated_areas_only": true,
+        "proper_disposal_method_required": true,
+        "pollution_fee_applicable": true,
+        "official_reporting_required": true
+      },
+      "violation_actions": [
+        "Pollution fee charged per municipality tariff",
+        "Official bodies notified",
+        "Contract unilaterally terminated (if deemed necessary)",
+        "No refund for remaining contract period"
+      ],
+      "notification_emails": ["environmental@marina.com", "compliance@marina.com", "legal@marina.com"]
+    },
+    {
+      "rule_id": "D.5",
+      "article_number": "D.5",
+      "title": "Marina Manager Authority to Remove Violators",
+      "description": "Marina Manager shall warn those who breach regulations, disturb order/peace, or pose danger. May notify Harbormaster and remove violators from Marina. May unilaterally terminate Mooring Agreements. Yacht removal charges borne by Owner.",
+      "category": "security",
+      "severity": "high",
+      "auto_check": false,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 1,
+      "applies_to": ["all"],
+      "conditions": {
+        "warning_issued_first": true,
+        "harbormaster_notification_if_continues": true,
+        "removal_authorized": true,
+        "contract_termination_authorized": true
+      },
+      "violation_actions": [
+        "Warning issued",
+        "Harbormaster notified if continues",
+        "Removal from Marina",
+        "Contract terminated unilaterally",
+        "All charges borne by Yacht Owner",
+        "Marina not responsible for damages"
+      ],
+      "notification_emails": ["security@marina.com", "manager@marina.com", "legal@marina.com"]
+    },
+    {
+      "rule_id": "E.1.10",
+      "article_number": "E.1.10",
+      "title": "Marina Navigation Speed Limit",
+      "description": "Yacht must navigate at speed conforming to marine procedures without damaging or disturbing other yachts (speed limit 3 knots maximum). Only by engine power, without using sail.",
+      "category": "operational",
+      "severity": "medium",
+      "auto_check": true,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "max_speed_knots": 3,
+        "engine_power_only": true,
+        "no_sail_allowed": true,
+        "marine_procedures_compliance": true
+      },
+      "violation_actions": [
+        "Warning issued",
+        "Potential marina access restriction"
+      ],
+      "notification_emails": ["operations@marina.com", "security@marina.com"]
+    },
+    {
+      "rule_id": "E.7.8",
+      "article_number": "E.7.8",
+      "title": "Outstanding Debt Payment Before Launch",
+      "description": "Yacht Owner must pay any outstanding debt to Company before Yacht is launched into sea. Otherwise, Owner liable for any loss/damages to Marina from failure to launch.",
+      "category": "administrative",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 24,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "zero_outstanding_debt_required": true,
+        "payment_before_launch": true,
+        "liability_for_delays": true
+      },
+      "violation_actions": [
+        "Launch refused until debt paid",
+        "Owner liable for resulting damages"
+      ],
+      "notification_emails": ["finance@marina.com", "operations@marina.com"]
+    },
+    {
+      "rule_id": "H.5",
+      "article_number": "H.5",
+      "title": "Right of Retention for Outstanding Debts",
+      "description": "Marina Manager may prevent Yacht from leaving Marina by obtaining departure ban from Harbourmaster, exercising right of retention per Civil Code Article 950, until Yacht Owner pays outstanding debt.",
+      "category": "administrative",
+      "severity": "critical",
+      "auto_check": true,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 48,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "outstanding_debt_exists": true,
+        "departure_ban_authorized": true,
+        "civil_code_article_950": true
+      },
+      "violation_actions": [
+        "Departure ban obtained from Harbourmaster",
+        "Yacht held until debt paid",
+        "Legal retention right exercised"
+      ],
+      "notification_emails": ["finance@marina.com", "legal@marina.com", "manager@marina.com"]
+    },
+    {
+      "rule_id": "F.4",
+      "article_number": "F.4",
+      "title": "Marina Security Area Access Control",
+      "description": "No one can enter marina security area without permission, except those authorized by Marina Management (vehicle/person) and those with entry card issued for security area.",
+      "category": "security",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["all"],
+      "conditions": {
+        "authorization_required": true,
+        "entry_card_required": true,
+        "management_permission_required": true
+      },
+      "violation_actions": [
+        "Access denied",
+        "Security personnel intervention",
+        "Potential legal action"
+      ],
+      "notification_emails": ["security@marina.com"]
+    },
+    {
+      "rule_id": "F.6",
+      "article_number": "F.6",
+      "title": "Pet Policy and Restrictions",
+      "description": "Keeping pets requires written permission from Management after presenting necessary documentation. Pets prohibited from common areas unattended and without collar/leash. Owner responsible for cleaning and any damage/harm caused.",
+      "category": "operational",
+      "severity": "low",
+      "auto_check": false,
+      "check_frequency_hours": 24,
+      "escalation_threshold_hours": 48,
+      "applies_to": ["all"],
+      "conditions": {
+        "written_permission_required": true,
+        "documentation_required": true,
+        "collar_leash_required": true,
+        "owner_supervision_required": true,
+        "cleanup_required": true
+      },
+      "violation_actions": [
+        "Permission withdrawn",
+        "Fines for violations",
+        "Owner liability for damages"
+      ],
+      "notification_emails": ["admin@marina.com"]
+    },
+    {
+      "rule_id": "F.10",
+      "article_number": "F.10",
+      "title": "Water Activities Prohibition",
+      "description": "Forbidden to swim, dive, fish, surf or use water skis, jet skis, or similar seacrafts in the Marina.",
+      "category": "safety",
+      "severity": "medium",
+      "auto_check": false,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["all"],
+      "conditions": {
+        "swimming_prohibited": true,
+        "diving_prohibited": true,
+        "fishing_prohibited": true,
+        "water_sports_prohibited": true
+      },
+      "violation_actions": [
+        "Immediate cessation required",
+        "Warning issued",
+        "Potential marina access restriction"
+      ],
+      "notification_emails": ["security@marina.com", "safety@marina.com"]
+    },
+    {
+      "rule_id": "F.12",
+      "article_number": "F.12",
+      "title": "Electrical Safety and Heating Sources",
+      "description": "No bare light and heating sources can be used (except normal yacht lighting and cooking stoves), no barbecues, no open fire. Yacht installations must use proper electrical cables/adapters approved by Management according to ampere rating.",
+      "category": "safety",
+      "severity": "high",
+      "auto_check": true,
+      "check_frequency_hours": 4,
+      "escalation_threshold_hours": 1,
+      "applies_to": ["vessels"],
+      "conditions": {
+        "open_flame_prohibited": true,
+        "barbecue_prohibited": true,
+        "proper_electrical_cables_required": true,
+        "approved_adapters_only": true,
+        "ampere_rating_compliance": true
+      },
+      "violation_actions": [
+        "Immediate cessation",
+        "Fire safety violation",
+        "Potential contract termination"
+      ],
+      "notification_emails": ["safety@marina.com", "operations@marina.com"]
+    },
+    {
+      "rule_id": "G.1",
+      "article_number": "G.1",
+      "title": "Vehicle Speed Limit in Marina",
+      "description": "Marina Management determines speed limits displayed on signs/roads. Where no signs exist, maximum speed is 10km/h. Violators and their vehicles banned from Marina, entry cards cancelled.",
+      "category": "operational",
+      "severity": "medium",
+      "auto_check": true,
+      "check_frequency_hours": 1,
+      "escalation_threshold_hours": 0,
+      "applies_to": ["all"],
+      "conditions": {
+        "max_speed_kmh": 10,
+        "speed_limit_signs_required": true,
+        "compliance_mandatory": true
+      },
+      "violation_actions": [
+        "Vehicle banned from Marina",
+        "Entry card cancelled",
+        "User banned"
+      ],
+      "notification_emails": ["security@marina.com", "operations@marina.com"]
+    }
+  ],
+  "categories": {
+    "safety": {
+      "name": "Safety Compliance",
+      "description": "Fire safety, accident prevention, emergency procedures, equipment requirements",
+      "priority": 1,
+      "default_severity": "high"
+    },
+    "environmental": {
+      "name": "Environmental Protection",
+      "description": "Waste disposal, pollution prevention, hazardous materials handling",
+      "priority": 1,
+      "default_severity": "critical"
+    },
+    "insurance_and_liability": {
+      "name": "Insurance and Liability",
+      "description": "Insurance requirements, liability coverage, financial responsibility",
+      "priority": 1,
+      "default_severity": "critical"
+    },
+    "permits_and_licenses": {
+      "name": "Permits and Licenses",
+      "description": "Work permits, hot work permits, subcontractor authorization",
+      "priority": 2,
+      "default_severity": "high"
+    },
+    "operational": {
+      "name": "Operational Procedures",
+      "description": "Navigation, mooring, launching, lifting, maintenance procedures",
+      "priority": 2,
+      "default_severity": "medium"
+    },
+    "administrative": {
+      "name": "Administrative Requirements",
+      "description": "Documentation, contracts, payments, reservations",
+      "priority": 3,
+      "default_severity": "medium"
+    },
+    "security": {
+      "name": "Security and Access Control",
+      "description": "Access control, entry cards, authorized personnel, security measures",
+      "priority": 2,
+      "default_severity": "high"
+    }
+  },
+  "severity_definitions": {
+    "low": {
+      "description": "Minor violations with minimal impact",
+      "response_time_hours": 72,
+      "notification_required": false,
+      "escalation_required": false
+    },
+    "medium": {
+      "description": "Moderate violations requiring attention",
+      "response_time_hours": 24,
+      "notification_required": true,
+      "escalation_required": false
+    },
+    "high": {
+      "description": "Serious violations requiring immediate action",
+      "response_time_hours": 4,
+      "notification_required": true,
+      "escalation_required": true
+    },
+    "critical": {
+      "description": "Critical violations posing immediate danger or legal risk",
+      "response_time_hours": 1,
+      "notification_required": true,
+      "escalation_required": true,
+      "authorities_notification_required": true
+    }
+  },
+  "enforcement_actions": {
+    "warning": {
+      "description": "Verbal or written warning issued to violator",
+      "severity_applicable": ["low", "medium"]
+    },
+    "fine": {
+      "description": "Financial penalty imposed",
+      "severity_applicable": ["medium", "high", "critical"]
+    },
+    "work_stoppage": {
+      "description": "Immediate cessation of work or activity",
+      "severity_applicable": ["high", "critical"]
+    },
+    "contract_termination": {
+      "description": "Unilateral termination of mooring/service contract",
+      "severity_applicable": ["high", "critical"]
+    },
+    "marina_removal": {
+      "description": "Forced removal of yacht from marina premises",
+      "severity_applicable": ["critical"]
+    },
+    "access_ban": {
+      "description": "Prohibition from entering marina in future",
+      "severity_applicable": ["critical"]
+    },
+    "authority_notification": {
+      "description": "Notification to harbormaster, law enforcement, or regulatory bodies",
+      "severity_applicable": ["critical"]
+    }
+  }
+}
