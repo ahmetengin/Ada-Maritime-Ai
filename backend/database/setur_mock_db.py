@@ -108,23 +108,6 @@ class SeturMockDatabase(DatabaseInterface):
                 contact_phone="+90 232 723 1250"
             ),
             Marina(
-                marina_id="setur-fethiye-ece-001",
-                name="Setur Fethiye Ece Marina",
-                location="Fethiye, Muğla",
-                country="Turkey",
-                total_berths=420,
-                available_berths=98,
-                coordinates={"lat": 36.6226, "lon": 29.1164},
-                amenities=[
-                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
-                    "Technical Service", "Chandlery", "Shower/WC",
-                    "Laundry", "Security 24/7", "Repair Yard",
-                    "Shopping", "Medical Service", "Pool"
-                ],
-                contact_email="fethiye@seturmarinas.com",
-                contact_phone="+90 252 612 5070"
-            ),
-            Marina(
                 marina_id="setur-netsel-marmaris-001",
                 name="Setur Netsel Marina Marmaris",
                 location="Marmaris, Muğla",
@@ -234,7 +217,7 @@ class SeturMockDatabase(DatabaseInterface):
                 contact_phone="+90 252 612 9820"
             ),
 
-            # West Istanbul Marina - Independent Premium Marina
+            # Independent Premium Marinas
             Marina(
                 marina_id="west-istanbul-001",
                 name="West Istanbul Marina",
@@ -270,6 +253,24 @@ class SeturMockDatabase(DatabaseInterface):
                 ],
                 contact_email="info@westistanbulmarina.com",
                 contact_phone="+90 212 886 9000"
+            ),
+            Marina(
+                marina_id="ece-saray-fethiye-001",
+                name="Ece Saray Marina & Resort",
+                location="Fethiye, Muğla",
+                country="Turkey",
+                total_berths=460,
+                available_berths=112,
+                coordinates={"lat": 36.6226, "lon": 29.1164},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Pool", "Resort Hotel",
+                    "Spa", "Beach Access", "Water Sports"
+                ],
+                contact_email="info@ecesaray.com.tr",
+                contact_phone="+90 252 614 9500"
             )
         ]
 
