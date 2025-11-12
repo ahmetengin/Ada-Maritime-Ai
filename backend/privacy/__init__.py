@@ -11,8 +11,10 @@ Core Privacy Principles:
 6. Edge Computing - Data stays on vessel
 7. Zero-Knowledge Cloud - Optional, encrypted, unreadable
 8. Regulation Ready - KVKK and GDPR compliant
+9. Creator Transparency - Creator can access, but captain knows
 
 "Kaptan ne derse o olur. Nokta."
+(But creator can see everything - with full transparency)
 """
 
 from .privacy_core import AdaSeaPrivacyCore
@@ -21,6 +23,7 @@ from .audit_log import AuditLog, AuditEntry
 from .consent_manager import ConsentManager, ConsentRequest, ConsentResponse
 from .compliance import KVKKCompliance, GDPRCompliance, ComplianceFramework
 from .marina_integration import AdaMarinaIntegration
+from .creator_access import CreatorAccessManager, CreatorAccessToken, AccessReason, AccessLevel
 
 __all__ = [
     'AdaSeaPrivacyCore',
@@ -36,7 +39,11 @@ __all__ = [
     'GDPRCompliance',
     'ComplianceFramework',
     'AdaMarinaIntegration',
+    'CreatorAccessManager',
+    'CreatorAccessToken',
+    'AccessReason',
+    'AccessLevel',
 ]
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'  # Updated for creator access
 __author__ = 'Ada.Sea Privacy Team'
