@@ -34,8 +34,28 @@ class SeturMockDatabase(DatabaseInterface):
         )
 
     def _create_mock_marinas(self) -> List[Marina]:
-        """Create mock marina data"""
+        """Create mock marina data for multiple marina networks"""
         return [
+            # Setur Marinas Network - Turkey's Leading Marina Chain
+
+            Marina(
+                marina_id="setur-kalamis-001",
+                name="Setur Kalamış Marina",
+                location="Kalamış, İstanbul",
+                country="Turkey",
+                total_berths=1508,
+                available_berths=347,
+                coordinates={"lat": 40.9667, "lon": 29.0333},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Sailing School",
+                    "Yacht Club", "Conference Rooms", "Parking"
+                ],
+                contact_email="kalamis@seturmarinas.com",
+                contact_phone="+90 216 346 5420"
+            ),
             # ============ SETUR MARINAS ============
             Marina(
                 marina_id="setur-bodrum-001",
@@ -48,7 +68,8 @@ class SeturMockDatabase(DatabaseInterface):
                 amenities=[
                     "Restaurant", "Bar", "Wifi", "Fuel Station",
                     "Technical Service", "Chandlery", "Shower/WC",
-                    "Laundry", "Security 24/7"
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service"
                 ],
                 contact_email="bodrum@seturmarinas.com",
                 contact_phone="+90 252 316 1860"
@@ -64,7 +85,8 @@ class SeturMockDatabase(DatabaseInterface):
                 amenities=[
                     "Restaurant", "Pool", "Spa", "Wifi",
                     "Fuel Station", "Repair Yard", "Shopping Center",
-                    "Medical Service"
+                    "Medical Service", "Technical Service", "Chandlery",
+                    "Shower/WC", "Laundry", "Security 24/7"
                 ],
                 contact_email="kusadasi@seturmarinas.com",
                 contact_phone="+90 256 618 1150"
@@ -79,15 +101,144 @@ class SeturMockDatabase(DatabaseInterface):
                 coordinates={"lat": 38.3190, "lon": 26.3020},
                 amenities=[
                     "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Technical Service", "Sailing School"
+                    "Technical Service", "Sailing School", "Chandlery",
+                    "Shower/WC", "Laundry", "Security 24/7"
                 ],
                 contact_email="cesme@seturmarinas.com",
                 contact_phone="+90 232 723 1250"
             ),
             Marina(
-                marina_id="setur-antalya-001",
-                name="Setur Antalya Marina",
-                location="Antalya",
+                marina_id="setur-fethiye-ece-001",
+                name="Setur Fethiye Ece Marina",
+                location="Fethiye, Muğla",
+                country="Turkey",
+                total_berths=420,
+                available_berths=98,
+                coordinates={"lat": 36.6226, "lon": 29.1164},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Pool"
+                ],
+                contact_email="fethiye@seturmarinas.com",
+                contact_phone="+90 252 612 5070"
+            ),
+            Marina(
+                marina_id="setur-netsel-marmaris-001",
+                name="Setur Netsel Marina Marmaris",
+                location="Marmaris, Muğla",
+                country="Turkey",
+                total_berths=750,
+                available_berths=167,
+                coordinates={"lat": 36.8537, "lon": 28.2694},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Yacht Club",
+                    "Pool", "Gym", "Spa", "Conference Rooms"
+                ],
+                contact_email="netsel@seturmarinas.com",
+                contact_phone="+90 252 412 2708"
+            ),
+            Marina(
+                marina_id="setur-midilli-001",
+                name="Setur Midilli Marina (Lesvos)",
+                location="Midilli (Lesbos)",
+                country="Greece",
+                total_berths=350,
+                available_berths=82,
+                coordinates={"lat": 39.1065, "lon": 26.5556},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "International Customs",
+                    "Sailing School"
+                ],
+                contact_email="lesvos@seturmarinas.com",
+                contact_phone="+30 225 102 0000"
+            ),
+
+            # D-Marin Group - International Marina Management
+            Marina(
+                marina_id="dmarin-turgutreis-001",
+                name="D-Marin Turgutreis",
+                location="Turgutreis, Bodrum, Muğla",
+                country="Turkey",
+                total_berths=530,
+                available_berths=142,
+                coordinates={"lat": 37.0011, "lon": 27.2497},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Pool",
+                    "Fitness Center", "Kids Club", "Beach Club"
+                ],
+                contact_email="turgutreis@d-marin.com",
+                contact_phone="+90 252 382 8300"
+            ),
+            Marina(
+                marina_id="dmarin-gocek-001",
+                name="D-Marin Göcek",
+                location="Göcek, Fethiye, Muğla",
+                country="Turkey",
+                total_berths=380,
+                available_berths=89,
+                coordinates={"lat": 36.7558, "lon": 28.9439},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Swimming Pool",
+                    "Yacht Club", "Conference Facilities"
+                ],
+                contact_email="gocek@d-marin.com",
+                contact_phone="+90 252 645 1350"
+            ),
+            Marina(
+                marina_id="dmarin-didim-001",
+                name="D-Marin Didim",
+                location="Didim, Aydın",
+                country="Turkey",
+                total_berths=620,
+                available_berths=176,
+                coordinates={"lat": 37.3650, "lon": 27.2681},
+                amenities=[
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping Center", "Medical Service", "Pool",
+                    "Spa", "Gym", "Beach Access", "Water Sports"
+                ],
+                contact_email="didim@d-marin.com",
+                contact_phone="+90 256 811 6060"
+            ),
+            Marina(
+                marina_id="dmarin-fethiye-001",
+                name="D-Marin Fethiye",
+                location="Fethiye, Muğla",
+                country="Turkey",
+                total_berths=290,
+                available_berths=67,
+                coordinates={"lat": 36.6414, "lon": 29.1081},
+                amenities=[
+                    "Restaurant", "Bar", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Repair Yard",
+                    "Shopping", "Medical Service", "Pool"
+                ],
+                contact_email="fethiye@d-marin.com",
+                contact_phone="+90 252 612 9820"
+            ),
+
+            # West Istanbul Marina - Independent Premium Marina
+            Marina(
+                marina_id="west-istanbul-001",
+                name="West Istanbul Marina",
+                location="West Istanbul, İstanbul",
                 country="Turkey",
                 total_berths=235,
                 available_berths=67,
@@ -109,130 +260,16 @@ class SeturMockDatabase(DatabaseInterface):
                 available_berths=142,
                 coordinates={"lat": 36.2086, "lon": 29.6153},
                 amenities=[
-                    "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Technical Service", "Chandlery", "Dry Storage",
-                    "Shopping", "Medical Service"
+                    "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
+                    "Technical Service", "Chandlery", "Shower/WC",
+                    "Laundry", "Security 24/7", "Hangar Facilities",
+                    "Helicopter Pad", "Bike Rentals", "Bike Parking",
+                    "Repair Yard", "Shopping Center", "Medical Service",
+                    "VIP Lounge", "Conference Rooms", "Business Center",
+                    "Customs Office"
                 ],
-                contact_email="kas@seturmarinas.com",
-                contact_phone="+90 242 836 1710"
-            ),
-            Marina(
-                marina_id="setur-marmaris-001",
-                name="Netsel Setur Marmaris Marina",
-                location="Marmaris, Muğla",
-                country="Turkey",
-                total_berths=830,
-                available_berths=234,
-                coordinates={"lat": 36.8507, "lon": 28.2772},
-                amenities=[
-                    "Restaurant", "Bar", "Pool", "Spa", "Wifi",
-                    "Fuel Station", "Repair Yard", "Chandlery",
-                    "Shopping Center", "Medical Service", "Laundry",
-                    "Security 24/7"
-                ],
-                contact_email="marmaris@seturmarinas.com",
-                contact_phone="+90 252 412 2708"
-            ),
-            Marina(
-                marina_id="setur-finike-001",
-                name="Setur Finike Marina",
-                location="Finike, Antalya",
-                country="Turkey",
-                total_berths=320,
-                available_berths=89,
-                coordinates={"lat": 36.2947, "lon": 30.1526},
-                amenities=[
-                    "Restaurant", "Wifi", "Fuel Station",
-                    "Technical Service", "Dry Storage", "Shower/WC",
-                    "Security 24/7"
-                ],
-                contact_email="finike@seturmarinas.com",
-                contact_phone="+90 242 855 5003"
-            ),
-            Marina(
-                marina_id="setur-ayvalik-001",
-                name="Setur Ayvalık Marina",
-                location="Ayvalık, Balıkesir",
-                country="Turkey",
-                total_berths=200,
-                available_berths=54,
-                coordinates={"lat": 39.3140, "lon": 26.6880},
-                amenities=[
-                    "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Technical Service", "Dry Storage", "Shower/WC",
-                    "Laundry"
-                ],
-                contact_email="ayvalik@seturmarinas.com",
-                contact_phone="+90 266 312 1545"
-            ),
-            Marina(
-                marina_id="setur-yalova-001",
-                name="Setur Yalova Marina",
-                location="Yalova",
-                country="Turkey",
-                total_berths=240,
-                available_berths=71,
-                coordinates={"lat": 40.6614, "lon": 29.2745},
-                amenities=[
-                    "Restaurant", "Wifi", "Fuel Station",
-                    "Technical Service", "Dry Storage", "Shower/WC",
-                    "Security 24/7"
-                ],
-                contact_email="yalova@seturmarinas.com",
-                contact_phone="+90 226 814 4848"
-            ),
-
-            # ============ D-MARIN MARINAS ============
-            Marina(
-                marina_id="dmarin-turgutreis-001",
-                name="D-Marin Turgutreis",
-                location="Turgutreis, Bodrum, Muğla",
-                country="Turkey",
-                total_berths=532,
-                available_berths=158,
-                coordinates={"lat": 36.9992, "lon": 27.2553},
-                amenities=[
-                    "Restaurant", "Bar", "Pool", "Spa", "Wifi",
-                    "Fuel Station", "Travel Lift", "Technical Service",
-                    "Chandlery", "Shopping Center", "Medical Service",
-                    "Dry Storage", "Security 24/7"
-                ],
-                contact_email="turgutreis@d-marin.com",
-                contact_phone="+90 252 382 8600"
-            ),
-            Marina(
-                marina_id="dmarin-didim-001",
-                name="D-Marin Didim",
-                location="Didim, Aydın",
-                country="Turkey",
-                total_berths=576,
-                available_berths=172,
-                coordinates={"lat": 37.3406, "lon": 27.2594},
-                amenities=[
-                    "Restaurant", "Bar", "Wifi", "Fuel Station",
-                    "Travel Lift 400T", "Technical Service", "Chandlery",
-                    "Superyacht Services", "Dry Storage", "Catamaran Center",
-                    "Shopping", "Security 24/7"
-                ],
-                contact_email="didim@d-marin.com",
-                contact_phone="+90 256 811 1100"
-            ),
-            Marina(
-                marina_id="dmarin-gocek-001",
-                name="D-Marin Göcek",
-                location="Göcek, Fethiye, Muğla",
-                country="Turkey",
-                total_berths=380,
-                available_berths=114,
-                coordinates={"lat": 36.7483, "lon": 28.9433},
-                amenities=[
-                    "Restaurant", "Bar", "Beach Club", "Wifi",
-                    "Fuel Station", "Technical Service", "Chandlery",
-                    "Shopping", "Medical Service", "Dry Storage",
-                    "National Park Access", "Security 24/7"
-                ],
-                contact_email="gocek@d-marin.com",
-                contact_phone="+90 252 645 2760"
+                contact_email="info@westistanbulmarina.com",
+                contact_phone="+90 212 886 9000"
             )
         ]
 
