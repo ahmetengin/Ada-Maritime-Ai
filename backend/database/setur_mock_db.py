@@ -56,6 +56,7 @@ class SeturMockDatabase(DatabaseInterface):
                 contact_email="kalamis@seturmarinas.com",
                 contact_phone="+90 216 346 5420"
             ),
+            # ============ SETUR MARINAS ============
             Marina(
                 marina_id="setur-bodrum-001",
                 name="Setur Bodrum Marina",
@@ -239,9 +240,25 @@ class SeturMockDatabase(DatabaseInterface):
                 name="West Istanbul Marina",
                 location="West Istanbul, İstanbul",
                 country="Turkey",
-                total_berths=680,
-                available_berths=198,
-                coordinates={"lat": 40.9777, "lon": 28.7989},
+                total_berths=235,
+                available_berths=67,
+                coordinates={"lat": 36.8348, "lon": 30.6148},
+                amenities=[
+                    "Restaurant", "Wifi", "Fuel Station",
+                    "Travel Lift 200T", "Technical Service", "Dry Storage",
+                    "Shower/WC", "Security 24/7"
+                ],
+                contact_email="antalya@seturmarinas.com",
+                contact_phone="+90 242 259 1190"
+            ),
+            Marina(
+                marina_id="setur-kas-001",
+                name="Setur Kaş Marina",
+                location="Kaş, Antalya",
+                country="Turkey",
+                total_berths=472,
+                available_berths=142,
+                coordinates={"lat": 36.2086, "lon": 29.6153},
                 amenities=[
                     "Restaurant", "Bar", "Cafe", "Wifi", "Fuel Station",
                     "Technical Service", "Chandlery", "Shower/WC",
@@ -468,6 +485,11 @@ class SeturMockDatabase(DatabaseInterface):
         bookings = [b for b in self.bookings if b.marina_id == marina_id]
         logger.debug(f"Found {len(bookings)} bookings for marina: {marina_id}")
         return bookings
+
+    def get_all_berths(self) -> List[Berth]:
+        """Get all berths"""
+        logger.debug(f"Returning {len(self.berths)} berths")
+        return self.berths
 
 
 # Singleton instance
