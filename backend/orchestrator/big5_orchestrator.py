@@ -10,6 +10,7 @@ from anthropic import Anthropic
 from ..config import get_config
 from ..logger import setup_logger
 from ..exceptions import OrchestratorError, SkillExecutionError
+from ..learning import ExperienceLearningPipeline, Experience, ExperienceType
 
 
 logger = setup_logger(__name__)
@@ -42,15 +43,22 @@ class AgentContext:
 
 class Big5Orchestrator:
     """
-    Big-5 Super Agent Orchestrator
-    
+    Big-5 Super Agent Orchestrator with SEAL v2 Learning
+
     Coordinates multiple specialized skills for complex marina operations.
+    Now includes autonomous learning through SEAL v2 + TabPFN-2.5.
     """
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
-        """Initialize the orchestrator"""
+    def __init__(self, api_key: Optional[str] = None, enable_learning: bool = True) -> None:
+        """
+        Initialize the orchestrator
+
+        Args:
+            api_key: Anthropic API key
+            enable_learning: Enable SEAL v2 learning capabilities
+        """
         config = get_config()
-        
+
         self.api_key = api_key or config.api.anthropic_api_key
         if not self.api_key:
             raise OrchestratorError("ANTHROPIC_API_KEY is required")
@@ -63,8 +71,19 @@ class Big5Orchestrator:
 
         self.skills: Dict[str, Any] = {}
         self.execution_history: List[SkillResult] = []
-        
-        logger.info("Big5Orchestrator initialized")
+
+        # SEAL v2 Learning Pipeline
+        self.enable_learning = enable_learning
+        if enable_learning:
+            self.learning_pipeline = ExperienceLearningPipeline(
+                enable_tabpfn=True,
+                enable_seal=True,
+                enable_caching=True
+            )
+            logger.info("Big5Orchestrator initialized with SEAL v2 learning")
+        else:
+            self.learning_pipeline = None
+            logger.info("Big5Orchestrator initialized (learning disabled)")
 
     def register_skill(self, skill_name: str, skill_handler: Any) -> None:
         """Register a skill handler"""
@@ -109,11 +128,22 @@ class Big5Orchestrator:
             )
 
             self.execution_history.append(result)
+
+            # SEAL v2: Record successful experience for learning
+            if self.enable_learning and self.learning_pipeline:
+                self._record_experience(
+                    skill_name=skill_name,
+                    params=params,
+                    context=context,
+                    result=result,
+                    success=True
+                )
+
             logger.info(
                 f"Skill {skill_name} executed successfully "
                 f"in {execution_time:.2f}s"
             )
-            
+
             return result
 
         except Exception as e:
@@ -131,6 +161,18 @@ class Big5Orchestrator:
             )
 
             self.execution_history.append(result)
+
+            # SEAL v2: Record failure experience for learning
+            if self.enable_learning and self.learning_pipeline:
+                self._record_experience(
+                    skill_name=skill_name,
+                    params=params,
+                    context=context,
+                    result=result,
+                    success=False,
+                    error=str(e)
+                )
+
             return result
 
     def process_natural_language(
@@ -245,6 +287,197 @@ Respond in JSON format:
         """Clear execution history"""
         self.execution_history = []
         logger.info("Execution history cleared")
+
+    # ========================================================================
+    # SEAL v2 Learning Methods
+    # ========================================================================
+
+    def _record_experience(
+        self,
+        skill_name: str,
+        params: Dict[str, Any],
+        context: AgentContext,
+        result: SkillResult,
+        success: bool,
+        error: Optional[str] = None
+    ) -> None:
+        """
+        Record skill execution as learning experience
+
+        This is called automatically after each skill execution.
+        """
+        # Map skill names to experience types
+        experience_type_mapping = {
+            "berth_management": ExperienceType.BERTH_ASSIGNMENT,
+            "pricing": ExperienceType.PRICING,
+            "compliance": ExperienceType.COMPLIANCE,
+            "maintenance": ExperienceType.MAINTENANCE,
+            "analytics": ExperienceType.CUSTOMER_SERVICE,
+            "weather": ExperienceType.WEATHER_DECISION,
+        }
+
+        exp_type = experience_type_mapping.get(
+            skill_name,
+            ExperienceType.CUSTOMER_SERVICE  # Default
+        )
+
+        # Calculate performance score
+        if success:
+            # Success: base score 0.8, bonus from execution time
+            base_score = 0.8
+            # Faster execution = higher score (bonus up to 0.2)
+            time_bonus = min(0.2, 0.2 * (1.0 / (result.execution_time + 0.1)))
+            performance_score = min(1.0, base_score + time_bonus)
+        else:
+            # Failure: score based on how far it got
+            performance_score = 0.2  # Minimal score for failures
+
+        # Create experience
+        experience = Experience(
+            experience_type=exp_type,
+            context={
+                "marina_id": context.marina_id,
+                "language": context.language,
+                "session_id": context.session_id,
+                **params
+            },
+            action=skill_name,
+            action_params=params,
+            outcome="success" if success else "failure",
+            performance_score=performance_score,
+            metrics={
+                "execution_time": result.execution_time
+            },
+            skill_used=skill_name,
+            agent_id="big5_orchestrator",
+            marina_id=context.marina_id,
+            error=error,
+            error_category="skill_execution" if error else None
+        )
+
+        # Process through learning pipeline
+        self.learning_pipeline.process_experience(experience)
+
+        logger.debug(
+            f"Recorded learning experience: {skill_name} "
+            f"(score: {performance_score:.2f}, outcome: {experience.outcome})"
+        )
+
+    def get_learning_statistics(self) -> Optional[Dict[str, Any]]:
+        """
+        Get SEAL v2 learning statistics
+
+        Returns statistics about learning progress, patterns, and self-edits.
+        """
+        if not self.enable_learning or not self.learning_pipeline:
+            return None
+
+        return self.learning_pipeline.get_combined_statistics()
+
+    def get_learning_patterns(self, min_confidence: float = 0.7) -> List[Dict[str, Any]]:
+        """
+        Get detected learning patterns
+
+        Args:
+            min_confidence: Minimum confidence threshold for patterns
+
+        Returns:
+            List of pattern dictionaries
+        """
+        if not self.enable_learning or not self.learning_pipeline or not self.learning_pipeline.seal:
+            return []
+
+        patterns = self.learning_pipeline.seal.get_patterns(min_confidence=min_confidence)
+
+        return [
+            {
+                "pattern_id": p.pattern_id,
+                "description": p.description,
+                "confidence": p.confidence,
+                "occurrences": p.occurrences,
+                "frequency": p.frequency
+            }
+            for p in patterns
+        ]
+
+    def get_pending_self_edits(self) -> List[Dict[str, Any]]:
+        """
+        Get pending SEAL v2 self-edits
+
+        Returns self-edits that need manual review or approval.
+        """
+        if not self.enable_learning or not self.learning_pipeline or not self.learning_pipeline.seal:
+            return []
+
+        pending = self.learning_pipeline.seal.get_pending_self_edits()
+
+        return [
+            {
+                "edit_id": edit.edit_id,
+                "edit_type": edit.edit_type.value,
+                "directive": edit.directive,
+                "expected_improvement": edit.expected_improvement,
+                "risk_level": edit.risk_level,
+                "trigger": edit.trigger
+            }
+            for edit in pending
+        ]
+
+    def apply_self_edit(self, edit_id: str) -> bool:
+        """
+        Manually apply a pending self-edit
+
+        Args:
+            edit_id: ID of self-edit to apply
+
+        Returns:
+            True if applied successfully
+        """
+        if not self.enable_learning or not self.learning_pipeline or not self.learning_pipeline.seal:
+            return False
+
+        # Find the self-edit
+        pending = self.learning_pipeline.seal.get_pending_self_edits()
+        for edit in pending:
+            if edit.edit_id == edit_id:
+                success = self.learning_pipeline.seal.apply_self_edit(edit)
+                if success:
+                    logger.info(f"Manually applied self-edit: {edit_id}")
+                return success
+
+        logger.warning(f"Self-edit not found: {edit_id}")
+        return False
+
+    def get_all_available_skills(self) -> List[Dict[str, Any]]:
+        """
+        Get detailed information about all available skills
+
+        Includes skill metadata and learning statistics if available.
+        """
+        skills_info = []
+
+        for name, handler in self.skills.items():
+            info = {
+                "name": name,
+                "description": getattr(handler, 'description', 'No description'),
+                "version": getattr(handler, 'version', '1.0.0')
+            }
+
+            # Add learning progress if available
+            if self.enable_learning and self.learning_pipeline and self.learning_pipeline.seal:
+                skill_progress = self.learning_pipeline.seal.get_skill_progress(name)
+                if skill_progress:
+                    info["learning"] = {
+                        "level": skill_progress.level,
+                        "xp": skill_progress.current_xp,
+                        "total_uses": skill_progress.total_uses,
+                        "success_rate": skill_progress.success_rate,
+                        "average_performance": skill_progress.average_performance
+                    }
+
+            skills_info.append(info)
+
+        return skills_info
 
 
 # Singleton instance
