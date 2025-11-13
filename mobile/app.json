@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Ada Maritime",
+    "slug": "ada-maritime-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1929"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.adamaritime.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Ada Maritime needs your location to show nearby marinas and vessels.",
+        "NSLocationAlwaysUsageDescription": "Ada Maritime needs your location for VHF monitoring and emergency features.",
+        "NSMicrophoneUsageDescription": "Ada Maritime needs microphone access for VHF communication recording."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A1929"
+      },
+      "package": "ai.adamaritime.mobile",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "RECORD_AUDIO",
+        "CAMERA",
+        "NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-location",
+      "expo-notifications"
+    ],
+    "extra": {
+      "apiUrl": "http://localhost:8000",
+      "wsUrl": "ws://localhost:8000/ws"
+    }
+  }
+}
