@@ -1,0 +1,600 @@
+{
+  "system": {
+    "name": "Ada Maritime AI - VHF Channel Database",
+    "version": "1.0.0",
+    "region": "Turkey",
+    "last_updated": "2025-11-12",
+    "description": "Complete VHF channel configuration for Turkish marinas and intership communication"
+  },
+
+  "standard_channels": {
+    "distress": {
+      "channel": 16,
+      "frequency": 156.800,
+      "type": "distress",
+      "description": "International distress, safety, and calling channel - ALWAYS MONITORED",
+      "notes": "Channel 16 is MANDATORY monitoring for all vessels",
+      "power": "25W",
+      "priority": "critical"
+    },
+    "intership": [
+      {
+        "channel": 6,
+        "frequency": 156.300,
+        "type": "intership",
+        "description": "Intership safety / Gemiden gemiye güvenlik",
+        "usage": "Vessel-to-vessel operations, especially sailing yachts",
+        "power": "1W",
+        "notes": "Most common intership channel in Turkey"
+      },
+      {
+        "channel": 8,
+        "frequency": 156.400,
+        "type": "intership",
+        "description": "Intership operations / Destek botları",
+        "usage": "Support boats, tender operations",
+        "power": "1W"
+      },
+      {
+        "channel": 9,
+        "frequency": 156.450,
+        "type": "intership",
+        "description": "Port/marina backup & intership",
+        "usage": "Backup channel for port operations",
+        "power": "1W"
+      },
+      {
+        "channel": 10,
+        "frequency": 156.500,
+        "type": "intership",
+        "description": "Intership communication / Filo koordinasyonu",
+        "usage": "Small fleet coordination",
+        "power": "1W"
+      },
+      {
+        "channel": 13,
+        "frequency": 156.650,
+        "type": "bridge_to_bridge",
+        "description": "Bridge-to-bridge / Köprü-köprü navigasyon",
+        "usage": "Navigation safety communication between vessels",
+        "power": "1W",
+        "notes": "Used in crowded waters, narrow passages"
+      },
+      {
+        "channel": 72,
+        "frequency": 156.625,
+        "type": "intership",
+        "description": "General intership / Genel gemiden gemiye",
+        "usage": "General ship-to-ship conversations",
+        "power": "1W",
+        "notes": "Very popular in Turkish waters"
+      },
+      {
+        "channel": 73,
+        "frequency": 156.675,
+        "type": "intership",
+        "description": "Yacht & marina intership / Yelkenli marinalar",
+        "usage": "Sailing yachts and marina communications",
+        "power": "1W",
+        "notes": "Frequently used in Ataköy, Göcek, Bodrum marinas"
+      },
+      {
+        "channel": 77,
+        "frequency": 156.875,
+        "type": "intership",
+        "description": "Short-range intership / Kısa menzil özel",
+        "usage": "Very short range private communications (mooring, docking)",
+        "power": "1W",
+        "notes": "Tender-to-yacht, dock assistance"
+      }
+    ],
+    "working": [
+      {
+        "channel": 67,
+        "frequency": 156.375,
+        "type": "working",
+        "description": "Commercial / Small craft",
+        "usage": "Commercial fishing, small craft operations"
+      },
+      {
+        "channel": 68,
+        "frequency": 156.425,
+        "type": "working",
+        "description": "Port operations / Liman operasyonları",
+        "usage": "General port working channel"
+      },
+      {
+        "channel": 69,
+        "frequency": 156.475,
+        "type": "working",
+        "description": "Port operations working",
+        "usage": "Secondary port working channel"
+      },
+      {
+        "channel": 71,
+        "frequency": 156.575,
+        "type": "working",
+        "description": "Port operations",
+        "usage": "Tertiary port working channel"
+      },
+      {
+        "channel": 74,
+        "frequency": 156.725,
+        "type": "working",
+        "description": "Port operations",
+        "usage": "Additional port working channel"
+      }
+    ]
+  },
+
+  "turkey_marinas": [
+    {
+      "marina_id": "atakoy_marina",
+      "name": "Ataköy Marina",
+      "region": "Istanbul",
+      "city": "Istanbul",
+      "operator": "Istanbul Metropolitan Municipality",
+      "coordinates": {"lat": 40.9765, "lon": 28.8793},
+      "capacity": 600,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Ataköy Marina",
+        "working_channels": [9, 12],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7 monitoring, office 08:00-20:00",
+        "languages": ["Turkish", "English"],
+        "notes": "Channel 73 is primary. Very active on weekends. Race net during Istanbul Sailing events."
+      }
+    },
+    {
+      "marina_id": "kalamis_marina",
+      "name": "Kalamış Marina",
+      "region": "Istanbul",
+      "city": "Istanbul - Kadıköy",
+      "operator": "Kartal Municipality",
+      "coordinates": {"lat": 40.9665, "lon": 29.0378},
+      "capacity": 700,
+      "vhf_config": {
+        "primary_channel": 9,
+        "primary_frequency": 156.450,
+        "call_sign": "Kalamış Marina",
+        "working_channels": [12, 73],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 9],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "One of the largest marinas in Turkey. Active sailing club."
+      }
+    },
+    {
+      "marina_id": "west_istanbul_marina",
+      "name": "West Istanbul Marina",
+      "region": "Istanbul",
+      "city": "Istanbul - Beylikdüzü",
+      "operator": "Enelka Taahhüt İmalat ve Ticaret A.Ş.",
+      "coordinates": {"lat": 40.9683, "lon": 28.6439},
+      "capacity": 650,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "West Istanbul",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Modern full-service marina. Extensive repair facilities."
+      }
+    },
+    {
+      "marina_id": "pendik_marina",
+      "name": "Pendik Marina",
+      "region": "Istanbul",
+      "city": "Istanbul - Pendik",
+      "operator": "Pendik Municipality",
+      "coordinates": {"lat": 40.8751, "lon": 29.2689},
+      "capacity": 400,
+      "vhf_config": {
+        "primary_channel": 9,
+        "primary_frequency": 156.450,
+        "call_sign": "Pendik Marina",
+        "working_channels": [73],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 9],
+        "operating_hours": "08:00-20:00 (Summer), 08:00-18:00 (Winter)",
+        "languages": ["Turkish", "English"]
+      }
+    },
+    {
+      "marina_id": "setur_karamursel",
+      "name": "Setur Karamürsel Marina",
+      "region": "Marmara",
+      "city": "Karamürsel",
+      "operator": "Setur Marinas",
+      "coordinates": {"lat": 40.6908, "lon": 29.6239},
+      "capacity": 200,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Setur Karamürsel",
+        "working_channels": [9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "08:00-20:00",
+        "languages": ["Turkish", "English"],
+        "notes": "Part of Setur marina network. Winter storage facility."
+      }
+    },
+    {
+      "marina_id": "setur_kusadasi",
+      "name": "Setur Kuşadası Marina",
+      "region": "Aegean",
+      "city": "Kuşadası",
+      "operator": "Setur Marinas",
+      "coordinates": {"lat": 37.8592, "lon": 27.2617},
+      "capacity": 450,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Setur Kuşadası",
+        "working_channels": [9, 12],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7 (Summer), 08:00-20:00 (Winter)",
+        "languages": ["Turkish", "English", "Greek"],
+        "notes": "Major international cruising hub. Close to Greek islands."
+      }
+    },
+    {
+      "marina_id": "cesme_marina",
+      "name": "Çeşme Marina",
+      "region": "Aegean",
+      "city": "Çeşme",
+      "operator": "Altınyunus Çeşme",
+      "coordinates": {"lat": 38.3228, "lon": 26.3028},
+      "capacity": 350,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Çeşme Marina",
+        "working_channels": [9, 72],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7 (April-October), 08:00-20:00 (November-March)",
+        "languages": ["Turkish", "English", "German"],
+        "notes": "Premium marina. Very active sailing scene. Close to Chios island."
+      }
+    },
+    {
+      "marina_id": "yalikavak_marina",
+      "name": "Palmarina Yalikavak",
+      "region": "Aegean",
+      "city": "Bodrum - Yalikavak",
+      "operator": "Palmarina",
+      "coordinates": {"lat": 37.1425, "lon": 27.2628},
+      "capacity": 620,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "Palmarina Yalikavak",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English", "Russian"],
+        "notes": "Mega-yacht capable. Luxury facilities. Bodrum Peninsula sailing hub."
+      }
+    },
+    {
+      "marina_id": "bodrum_milta",
+      "name": "Bodrum Milta Marina",
+      "region": "Aegean",
+      "city": "Bodrum",
+      "operator": "Milta Marina",
+      "coordinates": {"lat": 37.0349, "lon": 27.4305},
+      "capacity": 500,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Milta Bodrum",
+        "working_channels": [9, 12],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Central Bodrum location. Active charter base."
+      }
+    },
+    {
+      "marina_id": "gocek_exclusive",
+      "name": "Göcek Exclusive Marina",
+      "region": "Mediterranean",
+      "city": "Göcek",
+      "operator": "Göcek Marina",
+      "coordinates": {"lat": 36.7500, "lon": 28.9389},
+      "capacity": 380,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Göcek Exclusive",
+        "working_channels": [9, 72],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7 (May-October), 08:00-19:00 (November-April)",
+        "languages": ["Turkish", "English"],
+        "notes": "Protected bay. Multiple marinas in Göcek. Popular cruising destination."
+      }
+    },
+    {
+      "marina_id": "gocek_club_marina",
+      "name": "Club Marina Göcek",
+      "region": "Mediterranean",
+      "city": "Göcek",
+      "operator": "Club Marina",
+      "coordinates": {"lat": 36.7528, "lon": 28.9389},
+      "capacity": 400,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "Club Marina Göcek",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Full-service marina. Close to town center."
+      }
+    },
+    {
+      "marina_id": "setur_netsel",
+      "name": "Setur Netsel Marmaris",
+      "region": "Mediterranean",
+      "city": "Marmaris",
+      "operator": "Setur Marinas",
+      "coordinates": {"lat": 36.8539, "lon": 28.2739},
+      "capacity": 750,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Setur Netsel",
+        "working_channels": [9, 12, 72],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English", "German", "French"],
+        "notes": "One of Turkey's largest marinas. Major charter base. Customs clearance available."
+      }
+    },
+    {
+      "marina_id": "marmaris_yacht_marine",
+      "name": "Marmaris Yacht Marine",
+      "region": "Mediterranean",
+      "city": "Marmaris",
+      "operator": "MYM Marina",
+      "coordinates": {"lat": 36.8500, "lon": 28.2667},
+      "capacity": 600,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "Yacht Marine Marmaris",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Extensive repair facilities. Winter storage."
+      }
+    },
+    {
+      "marina_id": "fethiye_ece",
+      "name": "Ece Saray Marina Fethiye",
+      "region": "Mediterranean",
+      "city": "Fethiye",
+      "operator": "Ece Marina",
+      "coordinates": {"lat": 36.6211, "lon": 29.1167},
+      "capacity": 400,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Ece Marina",
+        "working_channels": [9, 12],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7 (April-November), 08:00-20:00 (December-March)",
+        "languages": ["Turkish", "English"],
+        "notes": "Central Fethiye location. Gateway to Gulf of Fethiye."
+      }
+    },
+    {
+      "marina_id": "antalya_setur",
+      "name": "Setur Antalya Marina",
+      "region": "Mediterranean",
+      "city": "Antalya",
+      "operator": "Setur Marinas",
+      "coordinates": {"lat": 36.8850, "lon": 30.7064},
+      "capacity": 250,
+      "vhf_config": {
+        "primary_channel": 73,
+        "primary_frequency": 156.675,
+        "call_sign": "Setur Antalya",
+        "working_channels": [9, 12],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 73],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English", "Russian", "German"],
+        "notes": "Year-round operations. Close to Antalya airport."
+      }
+    },
+    {
+      "marina_id": "kemer_marinturk",
+      "name": "Kemer Marinturk",
+      "region": "Mediterranean",
+      "city": "Kemer",
+      "operator": "Marinturk",
+      "coordinates": {"lat": 36.6000, "lon": 30.5597},
+      "capacity": 320,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "Marinturk Kemer",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7 (May-October), 08:00-18:00 (November-April)",
+        "languages": ["Turkish", "English", "German"],
+        "notes": "Popular stopover between Marmaris and Antalya."
+      }
+    },
+    {
+      "marina_id": "alanya_marina",
+      "name": "Alanya Marina",
+      "region": "Mediterranean",
+      "city": "Alanya",
+      "operator": "Alanya Municipality",
+      "coordinates": {"lat": 36.5444, "lon": 31.9856},
+      "capacity": 150,
+      "vhf_config": {
+        "primary_channel": 9,
+        "primary_frequency": 156.450,
+        "call_sign": "Alanya Marina",
+        "working_channels": [73],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 9],
+        "operating_hours": "08:00-20:00",
+        "languages": ["Turkish", "English"],
+        "notes": "Small marina. Beautiful castle view."
+      }
+    },
+    {
+      "marina_id": "d_marin_turgutreis",
+      "name": "D-Marin Turgutreis",
+      "region": "Aegean",
+      "city": "Bodrum - Turgutreis",
+      "operator": "D-Marin",
+      "coordinates": {"lat": 37.0025, "lon": 27.2597},
+      "capacity": 500,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "D-Marin Turgutreis",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Modern marina. Part of D-Marin network. Mega-yacht capable."
+      }
+    },
+    {
+      "marina_id": "d_marin_didim",
+      "name": "D-Marin Didim",
+      "region": "Aegean",
+      "city": "Didim",
+      "operator": "D-Marin",
+      "coordinates": {"lat": 37.3756, "lon": 27.2653},
+      "capacity": 600,
+      "vhf_config": {
+        "primary_channel": 12,
+        "primary_frequency": 156.600,
+        "call_sign": "D-Marin Didim",
+        "working_channels": [73, 9],
+        "intership_channels": [6, 72, 73],
+        "monitoring_channels": [16, 12],
+        "operating_hours": "24/7",
+        "languages": ["Turkish", "English"],
+        "notes": "Large marina. Close to ancient Ephesus. Major charter base."
+      }
+    }
+  ],
+
+  "racing_nets": {
+    "istanbul_race_net": {
+      "name": "Istanbul Sailing Race Net",
+      "region": "Istanbul",
+      "primary_channel": 72,
+      "backup_channels": [73, 77],
+      "active_season": "April-November",
+      "organizers": ["Turkish Sailing Federation", "Various yacht clubs"],
+      "notes": "Used during weekend races in Marmara Sea"
+    },
+    "bodrum_cup": {
+      "name": "Bodrum Cup Race Net",
+      "region": "Aegean",
+      "primary_channel": 72,
+      "backup_channels": [73],
+      "event": "Annual Bodrum Cup (October)",
+      "notes": "Major wooden boat regatta"
+    },
+    "marmaris_race_week": {
+      "name": "Marmaris Race Week Net",
+      "region": "Mediterranean",
+      "primary_channel": 72,
+      "backup_channels": [73],
+      "event": "Annual Marmaris International Race Week",
+      "notes": "International racing event"
+    }
+  },
+
+  "monitoring_recommendations": {
+    "always_monitor": [16],
+    "priority_intership_turkey": [6, 72, 73],
+    "marina_operations": [9, 12, 73],
+    "bridge_to_bridge": [13],
+    "racing_events": [72, 73, 77],
+    "emergency_backup": [16, 70]
+  },
+
+  "sdr_scanning_profiles": {
+    "passive_monitoring": {
+      "description": "General passive monitoring for Ada Observer",
+      "channels": [16, 6, 72, 73],
+      "scan_interval_seconds": 1.0,
+      "priority_dwell_ms": 500,
+      "notes": "Always include CH 16 for safety"
+    },
+    "race_net_monitoring": {
+      "description": "Active monitoring during sailing races",
+      "channels": [72, 73, 77, 6],
+      "scan_interval_seconds": 0.5,
+      "priority_dwell_ms": 1000,
+      "notes": "Fast scanning for race communications"
+    },
+    "marina_operations": {
+      "description": "Marina-specific monitoring",
+      "channels": [16, 9, 12, 73],
+      "scan_interval_seconds": 2.0,
+      "priority_dwell_ms": 500,
+      "notes": "Focus on marina working channels"
+    },
+    "comprehensive_scan": {
+      "description": "Full band monitoring",
+      "channels": [16, 6, 8, 9, 10, 12, 13, 72, 73, 77],
+      "scan_interval_seconds": 0.2,
+      "priority_dwell_ms": 200,
+      "notes": "Complete intership and marina coverage"
+    }
+  },
+
+  "frequency_plan": {
+    "vhf_marine_band": {
+      "start_mhz": 156.000,
+      "end_mhz": 162.000,
+      "channel_spacing_khz": 25,
+      "total_channels": 88
+    },
+    "power_levels": {
+      "high": "25W",
+      "low": "1W",
+      "notes": "Use 1W for intership, 25W only for distress/safety"
+    }
+  },
+
+  "legal_notes": {
+    "turkey": "VHF marine radio operation in Turkey requires a Ship Radio License (Gemi Telsiz Ruhsatı) and operator must have Marine Radio Operator Certificate (Deniz Telsiz Operatörü Sertifikası)",
+    "channel_16": "Monitoring Channel 16 is MANDATORY for all vessels at sea per Turkish Maritime Law",
+    "intership_usage": "Intership channels (6, 72, 73, 77) are for SHORT operational communications only. Extended conversations are prohibited.",
+    "privacy": "All VHF communications are public and can be monitored. Do not transmit sensitive information."
+  }
+}
