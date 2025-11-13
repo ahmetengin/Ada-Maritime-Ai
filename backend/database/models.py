@@ -571,3 +571,134 @@ class Document:
             return delta.days
         except:
             return None
+
+
+# ============================================================================
+# VHF COMMUNICATION MODELS
+# ============================================================================
+
+class VHFChannelType(Enum):
+    """VHF channel types"""
+    DISTRESS = "distress"  # Channel 16 - emergency
+    INTERSHIP = "intership"  # Ship-to-ship / gemiden gemiye
+    MARINA = "marina"  # Marina operations
+    PORT_OPS = "port_ops"  # Port operations
+    BRIDGE_TO_BRIDGE = "bridge_to_bridge"  # Köprü-köprü
+    WORKING = "working"  # General working channels
+    PUBLIC_CORRESPONDENCE = "public_correspondence"  # Telefon
+    WEATHER = "weather"  # Meteoroloji
+    NAVIGATION = "navigation"  # Navigasyon güvenliği
+
+
+class VHFMode(Enum):
+    """VHF operating modes"""
+    SIMPLEX = "simplex"  # Single frequency
+    DUPLEX = "duplex"  # Two frequencies
+
+
+class VHFRegion(Enum):
+    """VHF regulatory regions"""
+    INTERNATIONAL = "international"
+    TURKEY = "turkey"
+    MEDITERRANEAN = "mediterranean"
+    EU = "eu"
+    USA = "usa"
+
+
+@dataclass
+class VHFChannel:
+    """VHF Radio Channel Definition"""
+    channel_number: int  # e.g., 16, 72, 73
+    frequency_mhz: float  # e.g., 156.800
+    channel_type: str  # VHFChannelType
+    usage_description: str
+    mode: str = "simplex"  # VHFMode
+    power_restriction: Optional[str] = None  # "1W", "25W", etc.
+    region: str = "international"  # VHFRegion
+    is_priority: bool = False  # Priority monitoring
+    notes: Optional[str] = None
+
+    def get_display_name(self) -> str:
+        """Get formatted channel display"""
+        return f"CH {self.channel_number:02d} ({self.frequency_mhz} MHz)"
+
+    def is_intership_channel(self) -> bool:
+        """Check if this is an intership communication channel"""
+        return self.channel_type == "intership"
+
+    def is_emergency_channel(self) -> bool:
+        """Check if this is an emergency/distress channel"""
+        return self.channel_type == "distress" or self.channel_number == 16
+
+
+@dataclass
+class MarinaVHFConfig:
+    """VHF Channel Configuration for a Marina"""
+    marina_id: str
+    marina_name: str
+    primary_channel: int  # Main marina calling channel
+    primary_frequency: float
+    working_channels: List[int] = field(default_factory=list)  # Additional working channels
+    intership_channels: List[int] = field(default_factory=list)  # Recommended intership
+    monitoring_channels: List[int] = field(default_factory=list)  # Channels to monitor
+    call_sign: Optional[str] = None  # Marina radio call sign
+    operating_hours: Optional[str] = None  # When VHF is manned
+    languages: List[str] = field(default_factory=lambda: ["Turkish", "English"])
+    notes: Optional[str] = None
+
+    def get_all_channels(self) -> List[int]:
+        """Get all channels used by this marina"""
+        channels = [self.primary_channel]
+        channels.extend(self.working_channels)
+        channels.extend(self.monitoring_channels)
+        return sorted(list(set(channels)))
+
+
+@dataclass
+class IntershipCommunication:
+    """Intership communication record"""
+    comm_id: str
+    timestamp: str  # ISO format
+    channel_number: int
+    frequency_mhz: float
+    vessel1_name: Optional[str] = None
+    vessel2_name: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    content_summary: Optional[str] = None  # From STT/AI
+    communication_type: str = "operational"  # operational, safety, social, race
+    location: Optional[Dict[str, float]] = None  # {"lat": 41.0, "lon": 29.0}
+    detected_by: str = "sdr"  # sdr, manual, radio_log
+    signal_strength: Optional[float] = None  # RSSI
+    audio_file_url: Optional[str] = None
+    transcription: Optional[str] = None
+
+
+@dataclass
+class VHFMonitoringSession:
+    """VHF Monitoring Session (for Ada Observer)"""
+    session_id: str
+    start_time: str  # ISO format
+    end_time: Optional[str] = None
+    channels_monitored: List[int] = field(default_factory=list)
+    location: Optional[Dict[str, float]] = None
+    vessel_name: Optional[str] = None
+    mode: str = "passive"  # passive, active, race_net
+    detected_communications: List[str] = field(default_factory=list)  # comm_ids
+    priority_channels: List[int] = field(default_factory=lambda: [16, 72, 73])
+    scan_interval_seconds: float = 1.0
+    is_active: bool = True
+
+    def add_communication(self, comm_id: str) -> None:
+        """Add detected communication to session"""
+        self.detected_communications.append(comm_id)
+
+    def get_duration_minutes(self) -> Optional[float]:
+        """Calculate session duration in minutes"""
+        if not self.end_time:
+            return None
+        try:
+            start = datetime.fromisoformat(self.start_time)
+            end = datetime.fromisoformat(self.end_time)
+            return (end - start).total_seconds() / 60
+        except:
+            return None

@@ -26,24 +26,24 @@ from .marina_integration import AdaMarinaIntegration
 from .creator_access import CreatorAccessManager, CreatorAccessToken, AccessReason, AccessLevel
 
 __all__ = [
-    'AdaSeaPrivacyCore',
-    'DataPolicy',
-    'DataClassification',
-    'PermissionLevel',
-    'AuditLog',
-    'AuditEntry',
-    'ConsentManager',
-    'ConsentRequest',
-    'ConsentResponse',
-    'KVKKCompliance',
-    'GDPRCompliance',
-    'ComplianceFramework',
-    'AdaMarinaIntegration',
-    'CreatorAccessManager',
-    'CreatorAccessToken',
-    'AccessReason',
-    'AccessLevel',
+    "AdaSeaPrivacyCore",
+    "DataPolicy",
+    "DataClassification",
+    "PermissionLevel",
+    "AuditLog",
+    "AuditEntry",
+    "ConsentManager",
+    "ConsentRequest",
+    "ConsentResponse",
+    "KVKKCompliance",
+    "GDPRCompliance",
+    "ComplianceFramework",
+    "AdaMarinaIntegration",
+    "CreatorAccessManager",
+    "CreatorAccessToken",
+    "AccessReason",
+    "AccessLevel",
 ]
 
-__version__ = '1.1.0'  # Updated for creator access
-__author__ = 'Ada.Sea Privacy Team'
+__version__ = "1.1.0"  # Updated for creator access
+__author__ = "Ada.Sea Privacy Team"

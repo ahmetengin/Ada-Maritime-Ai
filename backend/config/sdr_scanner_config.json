@@ -1,0 +1,321 @@
+{
+  "sdr_scanner": {
+    "name": "Ada Observer VHF Scanner",
+    "version": "1.0.0",
+    "description": "SDR configuration for VHF marine band monitoring and intership communication detection"
+  },
+
+  "hardware": {
+    "recommended_devices": [
+      {
+        "model": "RTL-SDR Blog V3",
+        "price_range": "$25-35",
+        "frequency_range": "24-1766 MHz",
+        "sample_rate": "2.4 MS/s",
+        "notes": "Best budget option. Excellent for VHF marine band (156-162 MHz)"
+      },
+      {
+        "model": "Airspy Mini",
+        "price_range": "$99",
+        "frequency_range": "24-1800 MHz",
+        "sample_rate": "6 MS/s",
+        "notes": "Better sensitivity and dynamic range"
+      },
+      {
+        "model": "HackRF One",
+        "price_range": "$300",
+        "frequency_range": "1 MHz - 6 GHz",
+        "sample_rate": "20 MS/s",
+        "notes": "TX/RX capable, but RX-only for this application"
+      }
+    ],
+    "antenna": {
+      "type": "VHF Marine Antenna",
+      "recommended": "Quarter-wave whip or marine VHF antenna",
+      "length_cm": 50,
+      "notes": "For 156 MHz, ideal length is ~48cm. Can use boat's existing VHF antenna with splitter."
+    }
+  },
+
+  "vhf_marine_band": {
+    "start_frequency_mhz": 156.000,
+    "end_frequency_mhz": 162.000,
+    "band_width_mhz": 6.0,
+    "channel_spacing_khz": 25,
+    "total_channels": 88,
+    "modulation": "NFM",
+    "modulation_full": "Narrow FM (11.25 kHz deviation)"
+  },
+
+  "sdr_parameters": {
+    "center_frequency_mhz": 156.500,
+    "sample_rate_mhz": 2.4,
+    "gain": {
+      "auto": true,
+      "manual_db": 35,
+      "notes": "Start with auto gain, adjust for local environment"
+    },
+    "bandwidth_khz": 25,
+    "squelch_dbm": -100,
+    "ppm_correction": 0,
+    "notes": "Adjust ppm_correction for your specific SDR (usually 0-50)"
+  },
+
+  "demodulation": {
+    "type": "NFM",
+    "audio_sample_rate_hz": 48000,
+    "audio_bandwidth_hz": 3000,
+    "de_emphasis_us": 75,
+    "highpass_hz": 300,
+    "lowpass_hz": 3000,
+    "ctcss_detection": false,
+    "notes": "Marine VHF uses 75μs de-emphasis in some regions"
+  },
+
+  "scanning_profiles": {
+    "passive_monitoring": {
+      "description": "Default Ada Observer mode - passive listening",
+      "channels": [16, 6, 72, 73],
+      "frequencies_mhz": [156.800, 156.300, 156.625, 156.675],
+      "scan_mode": "sequential",
+      "scan_interval_ms": 1000,
+      "priority_dwell_ms": 500,
+      "vad_threshold_db": -80,
+      "record_on_activity": true,
+      "notes": "Monitors distress (16) and primary intership channels"
+    },
+
+    "race_net_monitoring": {
+      "description": "Active scanning during yacht races",
+      "channels": [72, 73, 77, 6],
+      "frequencies_mhz": [156.625, 156.675, 156.875, 156.300],
+      "scan_mode": "priority",
+      "scan_interval_ms": 500,
+      "priority_dwell_ms": 1000,
+      "vad_threshold_db": -85,
+      "record_on_activity": true,
+      "priority_channels": [72, 73],
+      "notes": "Fast scanning focused on race coordination channels"
+    },
+
+    "marina_operations": {
+      "description": "Marina-specific monitoring",
+      "channels": [16, 9, 12, 73],
+      "frequencies_mhz": [156.800, 156.450, 156.600, 156.675],
+      "scan_mode": "sequential",
+      "scan_interval_ms": 2000,
+      "priority_dwell_ms": 500,
+      "vad_threshold_db": -90,
+      "record_on_activity": true,
+      "notes": "Monitors marina calling and working channels"
+    },
+
+    "comprehensive_scan": {
+      "description": "Full intership + marina coverage",
+      "channels": [16, 6, 8, 9, 10, 12, 13, 72, 73, 77],
+      "frequencies_mhz": [
+        156.800, 156.300, 156.400, 156.450, 156.500,
+        156.600, 156.650, 156.625, 156.675, 156.875
+      ],
+      "scan_mode": "sweep",
+      "scan_interval_ms": 200,
+      "priority_dwell_ms": 200,
+      "vad_threshold_db": -95,
+      "record_on_activity": true,
+      "priority_channels": [16, 72, 73],
+      "notes": "Complete coverage, higher CPU usage"
+    },
+
+    "emergency_monitor": {
+      "description": "Channel 16 priority monitoring",
+      "channels": [16, 70],
+      "frequencies_mhz": [156.800, 156.525],
+      "scan_mode": "priority",
+      "scan_interval_ms": 100,
+      "priority_dwell_ms": 5000,
+      "vad_threshold_db": -75,
+      "record_on_activity": true,
+      "auto_alert": true,
+      "notes": "Continuous Channel 16 monitoring with DSC backup (CH 70)"
+    }
+  },
+
+  "voice_activity_detection": {
+    "enabled": true,
+    "algorithm": "energy_based",
+    "threshold_db": -80,
+    "min_duration_ms": 300,
+    "max_silence_ms": 500,
+    "notes": "Detects when someone is transmitting vs. carrier only"
+  },
+
+  "audio_recording": {
+    "enabled": true,
+    "format": "wav",
+    "sample_rate_hz": 48000,
+    "bit_depth": 16,
+    "channels": 1,
+    "max_recording_seconds": 30,
+    "save_path": "/var/ada/vhf_recordings/",
+    "filename_format": "vhf_ch{channel}_{timestamp}.wav",
+    "compress_old_recordings": true,
+    "retention_days": 7
+  },
+
+  "speech_to_text": {
+    "enabled": true,
+    "provider": "whisper",
+    "model": "base",
+    "language": "auto",
+    "detect_languages": ["tr", "en", "el"],
+    "min_confidence": 0.6,
+    "realtime": false,
+    "post_processing": true,
+    "maritime_vocabulary": [
+        "mayday", "pan-pan", "securite",
+        "marina", "mooring", "berth", "anchor",
+        "port", "starboard", "bow", "stern",
+        "rıhtım", "liman", "demirle", "bağla"
+    ]
+  },
+
+  "signal_processing": {
+    "noise_reduction": true,
+    "noise_gate_db": -95,
+    "compressor": {
+      "enabled": true,
+      "threshold_db": -20,
+      "ratio": 3.0
+    },
+    "equalizer": {
+      "enabled": true,
+      "type": "bandpass",
+      "low_hz": 300,
+      "high_hz": 3000
+    }
+  },
+
+  "alerts": {
+    "channel_16_activity": {
+      "enabled": true,
+      "alert_type": "critical",
+      "notification_methods": ["audio", "visual", "log"],
+      "keywords": ["mayday", "pan-pan", "securite"]
+    },
+    "intership_activity": {
+      "enabled": true,
+      "alert_type": "info",
+      "notification_methods": ["visual", "log"],
+      "min_signal_strength_dbm": -90
+    },
+    "marina_calls": {
+      "enabled": true,
+      "alert_type": "info",
+      "notification_methods": ["log"],
+      "marina_callsigns": ["Ataköy Marina", "Göcek", "Bodrum"]
+    }
+  },
+
+  "data_logging": {
+    "log_all_activity": true,
+    "database": "sqlite",
+    "database_path": "/var/ada/vhf_monitor.db",
+    "log_fields": [
+      "timestamp",
+      "channel",
+      "frequency_mhz",
+      "signal_strength_dbm",
+      "duration_seconds",
+      "transcription",
+      "detected_vessels",
+      "location_lat",
+      "location_lon"
+    ]
+  },
+
+  "gps_integration": {
+    "enabled": true,
+    "source": "gpsd",
+    "update_interval_seconds": 5,
+    "add_location_to_logs": true,
+    "notes": "Adds GPS coordinates to all logged communications"
+  },
+
+  "network_integration": {
+    "ada_observer_api": "http://localhost:8000/api/v1/vhf/",
+    "realtime_streaming": true,
+    "websocket_url": "ws://localhost:8000/ws/vhf",
+    "batch_upload_interval_seconds": 60
+  },
+
+  "software_requirements": {
+    "os": "Linux (recommended), macOS, Windows",
+    "python_version": "3.8+",
+    "required_packages": [
+      "pyrtlsdr",
+      "numpy",
+      "scipy",
+      "sounddevice",
+      "whisper (openai-whisper)",
+      "sqlalchemy"
+    ],
+    "optional_packages": [
+      "gpsd-py3 (for GPS)",
+      "fastapi (for API server)",
+      "websockets (for realtime streaming)"
+    ]
+  },
+
+  "performance": {
+    "cpu_usage_target_percent": 30,
+    "memory_limit_mb": 500,
+    "buffer_size_samples": 4096,
+    "threads": 2,
+    "optimization": "balanced"
+  },
+
+  "legal_compliance": {
+    "turkey": {
+      "monitoring_legal": true,
+      "transmitting_requires_license": true,
+      "notes": "Monitoring (receiving) VHF is legal in Turkey. Transmitting requires Ship Radio License."
+    },
+    "privacy": "All VHF marine communications are public and can be legally monitored.",
+    "recording": "Recording for personal safety/navigation purposes is permitted.",
+    "sharing": "Do not publicly share sensitive communications (distress, security, etc.)"
+  },
+
+  "troubleshooting": {
+    "no_signal": [
+      "Check antenna connection",
+      "Verify SDR device is detected (lsusb on Linux)",
+      "Check frequency offset (ppm correction)",
+      "Ensure center_frequency is 156.500 MHz"
+    ],
+    "weak_signal": [
+      "Increase gain (try manual 35-45 dB)",
+      "Improve antenna (use marine VHF antenna)",
+      "Reduce squelch threshold",
+      "Check antenna placement (higher is better)"
+    ],
+    "interference": [
+      "Enable noise reduction",
+      "Adjust squelch",
+      "Move away from electrical interference sources",
+      "Use better shielded antenna cable"
+    ],
+    "high_cpu_usage": [
+      "Reduce sample rate to 2.0 MS/s",
+      "Use fewer channels in scan",
+      "Disable realtime STT",
+      "Optimize buffer size"
+    ]
+  },
+
+  "example_commands": {
+    "rtl_sdr": "rtl_fm -f 156.8M -M fm -s 12k -g 40 - | play -r 12k -t raw -e s -b 16 -c 1 -V1 -",
+    "gqrx": "Set frequency to 156.800 MHz, mode NFM, filter width 25 kHz",
+    "sdr_sharp": "Plugin: VHF Scanner, Mode: NFM, Bandwidth: 12.5 kHz",
+    "python_pyrtlsdr": "See Ada Observer implementation in backend/sdr/vhf_monitor.py"
+  }
+}
