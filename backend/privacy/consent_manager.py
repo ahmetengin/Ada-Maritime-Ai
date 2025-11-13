@@ -8,11 +8,11 @@ from typing import Optional, Dict, Any, List
 from dataclasses import dataclass, field
 from enum import Enum
 import hashlib
-import json
 
 
 class ConsentMethod(Enum):
     """Method used to obtain consent"""
+
     VOICE = "voice"
     MANUAL = "manual"
     STANDING = "standing"  # Pre-approved standing permission
@@ -20,6 +20,7 @@ class ConsentMethod(Enum):
 
 class ConsentStatus(Enum):
     """Status of consent request"""
+
     PENDING = "pending"
     GRANTED = "granted"
     DENIED = "denied"
@@ -32,6 +33,7 @@ class ConsentRequest:
     """
     Request for captain consent to share data
     """
+
     destination: str  # Where data will be sent
     data_type: str  # Type of data to share
     data_size: int  # Size in bytes
@@ -69,12 +71,12 @@ class ConsentRequest:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
-            'request_id': self.request_id,
-            'destination': self.destination,
-            'data_type': self.data_type,
-            'data_size': self.data_size,
-            'purpose': self.purpose,
-            'timestamp': self.timestamp,
+            "request_id": self.request_id,
+            "destination": self.destination,
+            "data_type": self.data_type,
+            "data_size": self.data_size,
+            "purpose": self.purpose,
+            "timestamp": self.timestamp,
         }
 
 
@@ -83,6 +85,7 @@ class ConsentResponse:
     """
     Captain's response to consent request
     """
+
     request_id: str
     granted: bool
     captain_id: str
@@ -104,15 +107,15 @@ class ConsentResponse:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
-            'request_id': self.request_id,
-            'granted': self.granted,
-            'captain_id': self.captain_id,
-            'method': self.method.value,
-            'confirmation_text': self.confirmation_text,
-            'scope': self.scope,
-            'timestamp': self.timestamp,
-            'expiry': self.expiry,
-            'conditions': self.conditions,
+            "request_id": self.request_id,
+            "granted": self.granted,
+            "captain_id": self.captain_id,
+            "method": self.method.value,
+            "confirmation_text": self.confirmation_text,
+            "scope": self.scope,
+            "timestamp": self.timestamp,
+            "expiry": self.expiry,
+            "conditions": self.conditions,
         }
 
 
@@ -128,21 +131,12 @@ class ConsentManager:
         self.standing_permissions: Dict[str, ConsentResponse] = {}
 
     async def request_captain_permission(
-        self,
-        destination: str,
-        data_type: str,
-        data_size: int,
-        purpose: str
+        self, destination: str, data_type: str, data_size: int, purpose: str
     ) -> ConsentRequest:
         """
         Create consent request for captain approval
         """
-        request = ConsentRequest(
-            destination=destination,
-            data_type=data_type,
-            data_size=data_size,
-            purpose=purpose
-        )
+        request = ConsentRequest(destination=destination, data_type=data_type, data_size=data_size, purpose=purpose)
 
         # Store pending request
         self.pending_requests[request.request_id] = request
@@ -164,7 +158,7 @@ class ConsentManager:
         confirmation_text: str = "",
         scope: Optional[Dict[str, Any]] = None,
         standing: bool = False,
-        expiry_hours: Optional[int] = None
+        expiry_hours: Optional[int] = None,
     ) -> ConsentResponse:
         """
         Process captain's consent response
@@ -186,7 +180,7 @@ class ConsentManager:
             method=method,
             confirmation_text=confirmation_text,
             scope=scope,
-            expiry=expiry
+            expiry=expiry,
         )
 
         # Store in history
@@ -202,11 +196,7 @@ class ConsentManager:
 
         return response
 
-    def check_standing_permission(
-        self,
-        destination: str,
-        data_type: str
-    ) -> Optional[ConsentResponse]:
+    def check_standing_permission(self, destination: str, data_type: str) -> Optional[ConsentResponse]:
         """
         Check if there's a valid standing permission
         """
@@ -222,11 +212,7 @@ class ConsentManager:
 
         return None
 
-    def revoke_standing_permission(
-        self,
-        destination: str,
-        data_type: str
-    ) -> bool:
+    def revoke_standing_permission(self, destination: str, data_type: str) -> bool:
         """
         Revoke a standing permission
         """
@@ -240,26 +226,25 @@ class ConsentManager:
         self,
         captain_id: Optional[str] = None,
         destination: Optional[str] = None,
-        hours: int = 168  # Default: last 7 days
+        hours: int = 168,  # Default: last 7 days
     ) -> List[ConsentResponse]:
         """
         Get consent history with optional filters
         """
         cutoff_time = time.time() - (hours * 3600)
-        history = [
-            consent for consent in self.consent_history
-            if consent.timestamp >= cutoff_time
-        ]
+        history = [consent for consent in self.consent_history if consent.timestamp >= cutoff_time]
 
         if captain_id:
             history = [c for c in history if c.captain_id == captain_id]
 
         if destination:
             history = [
-                c for c in history
-                if destination in self.pending_requests.get(c.request_id, ConsentRequest(
-                    destination="", data_type="", data_size=0, purpose=""
-                )).destination
+                c
+                for c in history
+                if destination
+                in self.pending_requests.get(
+                    c.request_id, ConsentRequest(destination="", data_type="", data_size=0, purpose="")
+                ).destination
             ]
 
         return history
@@ -270,11 +255,11 @@ class ConsentManager:
         """
         return [
             {
-                'destination': key.split(':')[0],
-                'data_type': key.split(':')[1],
-                'granted_at': consent.timestamp,
-                'expires_at': consent.expiry,
-                'conditions': consent.conditions,
+                "destination": key.split(":")[0],
+                "data_type": key.split(":")[1],
+                "granted_at": consent.timestamp,
+                "expires_at": consent.expiry,
+                "conditions": consent.conditions,
             }
             for key, consent in self.standing_permissions.items()
             if consent.is_valid()
@@ -285,10 +270,7 @@ class ConsentManager:
         Clear expired standing permissions
         Returns number of permissions cleared
         """
-        expired = [
-            key for key, consent in self.standing_permissions.items()
-            if not consent.is_valid()
-        ]
+        expired = [key for key, consent in self.standing_permissions.items() if not consent.is_valid()]
 
         for key in expired:
             del self.standing_permissions[key]
@@ -302,11 +284,7 @@ class ConsentManager:
         return [consent.to_dict() for consent in self.consent_history]
 
     async def request_with_auto_check(
-        self,
-        destination: str,
-        data_type: str,
-        data_size: int,
-        purpose: str
+        self, destination: str, data_type: str, data_size: int, purpose: str
     ) -> Optional[ConsentResponse]:
         """
         Request permission, but first check for standing permission
@@ -323,17 +301,13 @@ class ConsentManager:
     def to_dict(self) -> Dict[str, Any]:
         """Export consent manager state"""
         return {
-            'pending_requests': {
-                k: v.to_dict() for k, v in self.pending_requests.items()
-            },
-            'consent_history': [c.to_dict() for c in self.consent_history],
-            'standing_permissions': {
-                k: v.to_dict() for k, v in self.standing_permissions.items()
-            }
+            "pending_requests": {k: v.to_dict() for k, v in self.pending_requests.items()},
+            "consent_history": [c.to_dict() for c in self.consent_history],
+            "standing_permissions": {k: v.to_dict() for k, v in self.standing_permissions.items()},
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ConsentManager':
+    def from_dict(cls, data: Dict[str, Any]) -> "ConsentManager":
         """Import consent manager state"""
         manager = cls()
         # Implementation for loading state would go here

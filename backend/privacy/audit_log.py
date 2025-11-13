@@ -15,6 +15,7 @@ from pathlib import Path
 
 class AuditEventType(Enum):
     """Types of privacy events to audit"""
+
     DATA_TRANSFER = "data_transfer"
     DATA_REQUEST = "data_request"
     CONSENT_GRANTED = "consent_granted"
@@ -32,6 +33,7 @@ class AuditEntry:
     Single audit log entry
     Immutable record of privacy-related event
     """
+
     event_type: AuditEventType
     timestamp: float
     destination: str
@@ -56,17 +58,17 @@ class AuditEntry:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         return {
-            'entry_id': self.entry_id,
-            'event_type': self.event_type.value,
-            'timestamp': self.timestamp,
-            'destination': self.destination,
-            'data_type': self.data_type,
-            'captain_id': self.captain_id,
-            'authorization_method': self.authorization_method,
-            'result': self.result,
-            'data_hash': self.data_hash,
-            'data_summary': self.data_summary,
-            'confirmation_text': self.confirmation_text,
+            "entry_id": self.entry_id,
+            "event_type": self.event_type.value,
+            "timestamp": self.timestamp,
+            "destination": self.destination,
+            "data_type": self.data_type,
+            "captain_id": self.captain_id,
+            "authorization_method": self.authorization_method,
+            "result": self.result,
+            "data_hash": self.data_hash,
+            "data_summary": self.data_summary,
+            "confirmation_text": self.confirmation_text,
         }
 
     def to_human_readable(self, language: str = "tr") -> str:
@@ -79,7 +81,7 @@ class AuditEntry:
                 AuditEventType.CONSENT_DENIED: "İzin Reddedildi",
             }
 
-            timestamp_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.timestamp))
+            timestamp_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.timestamp))
 
             return (
                 f"[{timestamp_str}] {event_names.get(self.event_type, self.event_type.value)}\n"
@@ -89,7 +91,7 @@ class AuditEntry:
                 f"  Sonuç: {self.result}"
             )
         else:
-            timestamp_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.timestamp))
+            timestamp_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(self.timestamp))
             return (
                 f"[{timestamp_str}] {self.event_type.value}\n"
                 f"  Destination: {self.destination}\n"
@@ -124,7 +126,8 @@ class AuditLog:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS audit_entries (
                 entry_id TEXT PRIMARY KEY,
                 event_type TEXT NOT NULL,
@@ -138,21 +141,28 @@ class AuditLog:
                 data_summary TEXT,
                 confirmation_text TEXT
             )
-        ''')
+        """
+        )
 
         # Create indexes for common queries
-        cursor.execute('''
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_timestamp
             ON audit_entries(timestamp)
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_captain
             ON audit_entries(captain_id)
-        ''')
-        cursor.execute('''
+        """
+        )
+        cursor.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_destination
             ON audit_entries(destination)
-        ''')
+        """
+        )
 
         conn.commit()
         conn.close()
@@ -165,7 +175,7 @@ class AuditLog:
         authorization_method: str,
         result: str,
         data: Optional[Dict[str, Any]] = None,
-        confirmation_text: str = ""
+        confirmation_text: str = "",
     ) -> AuditEntry:
         """
         Log a data transfer event
@@ -175,14 +185,12 @@ class AuditLog:
         data_summary = None
 
         if data:
-            data_hash = hashlib.sha256(
-                json.dumps(data, sort_keys=True).encode()
-            ).hexdigest()
+            data_hash = hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
             # Create summary (not full data)
             data_summary = {
-                'size': len(json.dumps(data)),
-                'fields': list(data.keys()) if isinstance(data, dict) else [],
+                "size": len(json.dumps(data)),
+                "fields": list(data.keys()) if isinstance(data, dict) else [],
             }
 
         entry = AuditEntry(
@@ -195,18 +203,13 @@ class AuditLog:
             result=result,
             data_hash=data_hash,
             data_summary=data_summary,
-            confirmation_text=confirmation_text
+            confirmation_text=confirmation_text,
         )
 
         self._store_entry(entry)
         return entry
 
-    def log_request(
-        self,
-        destination: str,
-        data_type: str,
-        captain_id: str
-    ) -> AuditEntry:
+    def log_request(self, destination: str, data_type: str, captain_id: str) -> AuditEntry:
         """
         Log a data request (before consent)
         """
@@ -217,20 +220,14 @@ class AuditLog:
             data_type=data_type,
             captain_id=captain_id,
             authorization_method="pending",
-            result="requested"
+            result="requested",
         )
 
         self._store_entry(entry)
         return entry
 
     def log_consent(
-        self,
-        granted: bool,
-        destination: str,
-        data_type: str,
-        captain_id: str,
-        method: str,
-        confirmation_text: str = ""
+        self, granted: bool, destination: str, data_type: str, captain_id: str, method: str, confirmation_text: str = ""
     ) -> AuditEntry:
         """
         Log consent decision
@@ -245,7 +242,7 @@ class AuditLog:
             captain_id=captain_id,
             authorization_method=method,
             result="granted" if granted else "denied",
-            confirmation_text=confirmation_text
+            confirmation_text=confirmation_text,
         )
 
         self._store_entry(entry)
@@ -256,21 +253,24 @@ class AuditLog:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
 
-        cursor.execute('''
+        cursor.execute(
+            """
             INSERT INTO audit_entries VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            entry.entry_id,
-            entry.event_type.value,
-            entry.timestamp,
-            entry.destination,
-            entry.data_type,
-            entry.captain_id,
-            entry.authorization_method,
-            entry.result,
-            entry.data_hash,
-            json.dumps(entry.data_summary) if entry.data_summary else None,
-            entry.confirmation_text
-        ))
+        """,
+            (
+                entry.entry_id,
+                entry.event_type.value,
+                entry.timestamp,
+                entry.destination,
+                entry.data_type,
+                entry.captain_id,
+                entry.authorization_method,
+                entry.result,
+                entry.data_hash,
+                json.dumps(entry.data_summary) if entry.data_summary else None,
+                entry.confirmation_text,
+            ),
+        )
 
         conn.commit()
         conn.close()
@@ -281,7 +281,7 @@ class AuditLog:
         destination: Optional[str] = None,
         event_type: Optional[AuditEventType] = None,
         hours: int = 168,  # Default: last 7 days
-        limit: int = 100
+        limit: int = 100,
     ) -> List[AuditEntry]:
         """
         Query audit log with filters
@@ -328,7 +328,7 @@ class AuditLog:
                 result=row[7],
                 data_hash=row[8],
                 data_summary=data_summary,
-                confirmation_text=row[10]
+                confirmation_text=row[10],
             )
             entries.append(entry)
 
@@ -341,36 +341,31 @@ class AuditLog:
         entries = self.query(captain_id=captain_id, hours=hours, limit=1000)
 
         summary = {
-            'total_transfers': 0,
-            'destinations': {},
-            'data_types': {},
-            'recent_entries': [],
+            "total_transfers": 0,
+            "destinations": {},
+            "data_types": {},
+            "recent_entries": [],
         }
 
         for entry in entries:
             if entry.event_type == AuditEventType.DATA_TRANSFER:
-                summary['total_transfers'] += 1
+                summary["total_transfers"] += 1
 
                 # Count by destination
                 dest = entry.destination
-                summary['destinations'][dest] = summary['destinations'].get(dest, 0) + 1
+                summary["destinations"][dest] = summary["destinations"].get(dest, 0) + 1
 
                 # Count by data type
                 dtype = entry.data_type
-                summary['data_types'][dtype] = summary['data_types'].get(dtype, 0) + 1
+                summary["data_types"][dtype] = summary["data_types"].get(dtype, 0) + 1
 
             # Add to recent (limit to 10)
-            if len(summary['recent_entries']) < 10:
-                summary['recent_entries'].append(entry.to_dict())
+            if len(summary["recent_entries"]) < 10:
+                summary["recent_entries"].append(entry.to_dict())
 
         return summary
 
-    def export_for_captain(
-        self,
-        captain_id: str,
-        hours: int = 168,
-        format: str = "json"
-    ) -> str:
+    def export_for_captain(self, captain_id: str, hours: int = 168, format: str = "json") -> str:
         """
         Export audit log for captain review
         Supports JSON and human-readable formats
@@ -378,16 +373,12 @@ class AuditLog:
         entries = self.query(captain_id=captain_id, hours=hours, limit=1000)
 
         if format == "json":
-            return json.dumps(
-                [entry.to_dict() for entry in entries],
-                indent=2,
-                ensure_ascii=False
-            )
+            return json.dumps([entry.to_dict() for entry in entries], indent=2, ensure_ascii=False)
         elif format == "human":
             lines = [
                 "=== ADA.SEA VERİ PAYLAŞIM GEÇMİŞİ ===\n",
                 f"Son {hours} saat\n",
-                f"Toplam {len(entries)} kayıt\n\n"
+                f"Toplam {len(entries)} kayıt\n\n",
             ]
 
             for entry in entries:
@@ -409,9 +400,7 @@ class AuditLog:
             return False
 
         # Recompute hash
-        computed_hash = hashlib.sha256(
-            json.dumps(original_data, sort_keys=True).encode()
-        ).hexdigest()
+        computed_hash = hashlib.sha256(json.dumps(original_data, sort_keys=True).encode()).hexdigest()
 
         return computed_hash == entry.data_hash
 
@@ -425,10 +414,7 @@ class AuditLog:
 
         cutoff_time = time.time() - (days * 24 * 3600)
 
-        cursor.execute(
-            "DELETE FROM audit_entries WHERE timestamp < ?",
-            (cutoff_time,)
-        )
+        cursor.execute("DELETE FROM audit_entries WHERE timestamp < ?", (cutoff_time,))
 
         deleted = cursor.rowcount
         conn.commit()

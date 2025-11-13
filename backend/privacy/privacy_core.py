@@ -3,14 +3,13 @@ Ada.Sea Privacy Core
 Central privacy management system orchestrating all privacy controls
 """
 
-import asyncio
 from typing import Optional, Dict, Any, List
 import hashlib
 import json
 
-from .data_policy import DataPolicy, DataClassification, PermissionLevel
-from .consent_manager import ConsentManager, ConsentMethod, ConsentRequest, ConsentResponse
-from .audit_log import AuditLog, AuditEventType
+from .data_policy import DataPolicy, DataClassification
+from .consent_manager import ConsentManager, ConsentMethod
+from .audit_log import AuditLog
 
 
 class AdaSeaPrivacyCore:
@@ -27,12 +26,7 @@ class AdaSeaPrivacyCore:
     "Kaptan ne derse o olur. Nokta."
     """
 
-    def __init__(
-        self,
-        captain_id: str,
-        data_policy: Optional[DataPolicy] = None,
-        audit_log_path: Optional[str] = None
-    ):
+    def __init__(self, captain_id: str, data_policy: Optional[DataPolicy] = None, audit_log_path: Optional[str] = None):
         """
         Initialize privacy core
 
@@ -57,7 +51,7 @@ class AdaSeaPrivacyCore:
         data: Dict[str, Any],
         data_type: str,
         purpose: str,
-        bypass_consent: bool = False  # For emergency situations only
+        bypass_consent: bool = False,  # For emergency situations only
     ) -> Dict[str, Any]:
         """
         Share data with explicit captain approval
@@ -82,31 +76,20 @@ class AdaSeaPrivacyCore:
             try:
                 data_class = DataClassification(data_type)
             except ValueError:
-                return {
-                    'success': False,
-                    'reason': f'Invalid data type: {data_type}'
-                }
+                return {"success": False, "reason": f"Invalid data type: {data_type}"}
 
             if self.data_policy.is_private_data(data_class):
                 # Absolutely private - never share
                 self.audit_log.log_request(destination, data_type, self.captain_id)
-                return {
-                    'success': False,
-                    'reason': 'Data classified as PRIVATE - cannot share',
-                    'data_type': data_type
-                }
+                return {"success": False, "reason": "Data classified as PRIVATE - cannot share", "data_type": data_type}
 
             # 2. Check for standing permission
-            standing_consent = self.consent_manager.check_standing_permission(
-                destination, data_type
-            )
+            standing_consent = self.consent_manager.check_standing_permission(destination, data_type)
 
             if standing_consent:
                 # Use standing permission
                 filtered_data = self._filter_by_scope(data, standing_consent.scope)
-                result = await self._execute_transfer(
-                    destination, filtered_data, data_type, purpose
-                )
+                result = await self._execute_transfer(destination, filtered_data, data_type, purpose)
 
                 # Log with standing permission
                 self.audit_log.log_transfer(
@@ -114,19 +97,16 @@ class AdaSeaPrivacyCore:
                     data_type=data_type,
                     captain_id=self.captain_id,
                     authorization_method="standing_permission",
-                    result="success" if result['success'] else "failed",
+                    result="success" if result["success"] else "failed",
                     data=filtered_data,
-                    confirmation_text="Standing permission"
+                    confirmation_text="Standing permission",
                 )
 
                 return result
 
             # 3. Request captain permission
             request = await self.consent_manager.request_captain_permission(
-                destination=destination,
-                data_type=data_type,
-                data_size=len(json.dumps(data)),
-                purpose=purpose
+                destination=destination, data_type=data_type, data_size=len(json.dumps(data)), purpose=purpose
             )
 
             # Log the request
@@ -135,10 +115,10 @@ class AdaSeaPrivacyCore:
             # Wait for captain response (this would integrate with voice/UI)
             # For now, return the request for external handling
             return {
-                'success': False,
-                'reason': 'Captain authorization required',
-                'request': request.to_dict(),
-                'voice_prompt': request.to_voice_prompt('tr')
+                "success": False,
+                "reason": "Captain authorization required",
+                "request": request.to_dict(),
+                "voice_prompt": request.to_voice_prompt("tr"),
             }
 
         # Emergency bypass (heavily logged)
@@ -150,18 +130,15 @@ class AdaSeaPrivacyCore:
                 data_type=data_type,
                 captain_id=self.captain_id,
                 authorization_method="EMERGENCY_BYPASS",
-                result="success" if result['success'] else "failed",
+                result="success" if result["success"] else "failed",
                 data=data,
-                confirmation_text="⚠️ EMERGENCY BYPASS - NO CONSENT"
+                confirmation_text="⚠️ EMERGENCY BYPASS - NO CONSENT",
             )
 
             return result
 
         # Should not reach here
-        return {
-            'success': False,
-            'reason': 'Unknown error in privacy core'
-        }
+        return {"success": False, "reason": "Unknown error in privacy core"}
 
     async def process_captain_consent(
         self,
@@ -171,7 +148,7 @@ class AdaSeaPrivacyCore:
         confirmation_text: str = "",
         scope: Optional[Dict[str, Any]] = None,
         standing: bool = False,
-        expiry_hours: Optional[int] = None
+        expiry_hours: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Process captain's consent decision
@@ -198,7 +175,7 @@ class AdaSeaPrivacyCore:
             confirmation_text=confirmation_text,
             scope=scope,
             standing=standing,
-            expiry_hours=expiry_hours
+            expiry_hours=expiry_hours,
         )
 
         # Log consent decision
@@ -207,30 +184,18 @@ class AdaSeaPrivacyCore:
         self.audit_log.log_consent(
             granted=granted,
             destination="pending",  # Would come from request
-            data_type="pending",    # Would come from request
+            data_type="pending",  # Would come from request
             captain_id=self.captain_id,
             method=method.value,
-            confirmation_text=confirmation_text
+            confirmation_text=confirmation_text,
         )
 
         if granted:
-            return {
-                'success': True,
-                'consent': consent.to_dict(),
-                'message': 'Permission granted - ready to transfer'
-            }
+            return {"success": True, "consent": consent.to_dict(), "message": "Permission granted - ready to transfer"}
         else:
-            return {
-                'success': False,
-                'reason': 'Captain denied permission',
-                'consent': consent.to_dict()
-            }
+            return {"success": False, "reason": "Captain denied permission", "consent": consent.to_dict()}
 
-    def _filter_by_scope(
-        self,
-        data: Dict[str, Any],
-        scope: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def _filter_by_scope(self, data: Dict[str, Any], scope: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Filter data according to consent scope
         Only include fields that were approved
@@ -238,21 +203,14 @@ class AdaSeaPrivacyCore:
         if not scope:
             return data
 
-        if 'fields' in scope:
+        if "fields" in scope:
             # Only include approved fields
-            return {
-                k: v for k, v in data.items()
-                if k in scope['fields']
-            }
+            return {k: v for k, v in data.items() if k in scope["fields"]}
 
         return data
 
     async def _execute_transfer(
-        self,
-        destination: str,
-        data: Dict[str, Any],
-        data_type: str,
-        purpose: str
+        self, destination: str, data: Dict[str, Any], data_type: str, purpose: str
     ) -> Dict[str, Any]:
         """
         Actually execute the data transfer
@@ -260,34 +218,24 @@ class AdaSeaPrivacyCore:
         """
 
         # Calculate data hash for integrity
-        data_hash = hashlib.sha256(
-            json.dumps(data, sort_keys=True).encode()
-        ).hexdigest()
+        data_hash = hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
         try:
             # Actual transfer would happen here
             # For now, simulate success
 
             return {
-                'success': True,
-                'destination': destination,
-                'data_type': data_type,
-                'purpose': purpose,
-                'data_hash': data_hash,
-                'timestamp': self.audit_log.query(limit=1)[0].timestamp if self.audit_log.query(limit=1) else 0
+                "success": True,
+                "destination": destination,
+                "data_type": data_type,
+                "purpose": purpose,
+                "data_hash": data_hash,
+                "timestamp": self.audit_log.query(limit=1)[0].timestamp if self.audit_log.query(limit=1) else 0,
             }
         except Exception as e:
-            return {
-                'success': False,
-                'reason': f'Transfer failed: {str(e)}',
-                'destination': destination
-            }
+            return {"success": False, "reason": f"Transfer failed: {str(e)}", "destination": destination}
 
-    def get_audit_trail(
-        self,
-        destination: Optional[str] = None,
-        hours: int = 168
-    ) -> List[Dict[str, Any]]:
+    def get_audit_trail(self, destination: Optional[str] = None, hours: int = 168) -> List[Dict[str, Any]]:
         """
         Get audit trail for captain review
 
@@ -298,11 +246,7 @@ class AdaSeaPrivacyCore:
         Returns:
             List of audit entries
         """
-        entries = self.audit_log.query(
-            captain_id=self.captain_id,
-            destination=destination,
-            hours=hours
-        )
+        entries = self.audit_log.query(captain_id=self.captain_id, destination=destination, hours=hours)
 
         return [entry.to_dict() for entry in entries]
 
@@ -322,19 +266,13 @@ class AdaSeaPrivacyCore:
         """
         return self.consent_manager.get_standing_permissions()
 
-    def revoke_standing_permission(
-        self,
-        destination: str,
-        data_type: str
-    ) -> bool:
+    def revoke_standing_permission(self, destination: str, data_type: str) -> bool:
         """
         Revoke a standing permission
 
         Voice command: "Ada, [destination] için otomatik paylaşımı iptal et"
         """
-        revoked = self.consent_manager.revoke_standing_permission(
-            destination, data_type
-        )
+        revoked = self.consent_manager.revoke_standing_permission(destination, data_type)
 
         if revoked:
             # Log revocation
@@ -344,7 +282,7 @@ class AdaSeaPrivacyCore:
                 data_type=data_type,
                 captain_id=self.captain_id,
                 method="captain_revocation",
-                confirmation_text="Standing permission revoked"
+                confirmation_text="Standing permission revoked",
             )
 
         return revoked
@@ -359,10 +297,7 @@ class AdaSeaPrivacyCore:
         count = 0
 
         for perm in permissions:
-            self.revoke_standing_permission(
-                perm['destination'],
-                perm['data_type']
-            )
+            self.revoke_standing_permission(perm["destination"], perm["data_type"])
             count += 1
 
         return count
@@ -374,11 +309,7 @@ class AdaSeaPrivacyCore:
 
         Voice command: "Ada, verilerimi dışa aktar"
         """
-        return self.audit_log.export_for_captain(
-            captain_id=self.captain_id,
-            hours=8760,  # 1 year
-            format=format
-        )
+        return self.audit_log.export_for_captain(captain_id=self.captain_id, hours=8760, format=format)  # 1 year
 
     def delete_privacy_data(self, days_to_keep: int = 0) -> Dict[str, Any]:
         """
@@ -389,11 +320,7 @@ class AdaSeaPrivacyCore:
         """
         deleted = self.audit_log.delete_old_entries(days=days_to_keep)
 
-        return {
-            'success': True,
-            'entries_deleted': deleted,
-            'message': f'{deleted} kayıt silindi'
-        }
+        return {"success": True, "entries_deleted": deleted, "message": f"{deleted} kayıt silindi"}
 
     def get_privacy_status(self) -> Dict[str, Any]:
         """
@@ -402,18 +329,15 @@ class AdaSeaPrivacyCore:
         Voice command: "Ada, gizlilik durumu"
         """
         return {
-            'captain_id': self.captain_id,
-            'cloud_sync_enabled': self.cloud_sync_enabled,
-            'zero_trust_mode': self.zero_trust_mode,
-            'captain_auth_required': self.captain_auth_required,
-            'standing_permissions_count': len(self.get_standing_permissions()),
-            'recent_transfers_count': len(self.get_audit_trail(hours=24)),
+            "captain_id": self.captain_id,
+            "cloud_sync_enabled": self.cloud_sync_enabled,
+            "zero_trust_mode": self.zero_trust_mode,
+            "captain_auth_required": self.captain_auth_required,
+            "standing_permissions_count": len(self.get_standing_permissions()),
+            "recent_transfers_count": len(self.get_audit_trail(hours=24)),
         }
 
-    def enable_cloud_backup(
-        self,
-        encryption_key: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def enable_cloud_backup(self, encryption_key: Optional[str] = None) -> Dict[str, Any]:
         """
         Enable optional zero-knowledge cloud backup
 
@@ -422,19 +346,16 @@ class AdaSeaPrivacyCore:
         Voice command: "Ada, yedeklemeyi aktif et"
         """
         if not encryption_key:
-            return {
-                'success': False,
-                'reason': 'Encryption key required for cloud backup'
-            }
+            return {"success": False, "reason": "Encryption key required for cloud backup"}
 
         # In real implementation, would set up encrypted backup
         self.cloud_sync_enabled = True
 
         return {
-            'success': True,
-            'message': '✓ Yedekleme aktif\n'
-                      '✓ Şifreleme anahtarı sadece cihazlarınızda\n'
-                      '✓ Ada.sea yedekleri okuyamaz'
+            "success": True,
+            "message": (
+                "✓ Yedekleme aktif\n" "✓ Şifreleme anahtarı sadece cihazlarınızda\n" "✓ Ada.sea yedekleri okuyamaz"
+            ),
         }
 
     def disable_cloud_backup(self) -> Dict[str, Any]:
@@ -445,17 +366,14 @@ class AdaSeaPrivacyCore:
         """
         self.cloud_sync_enabled = False
 
-        return {
-            'success': True,
-            'message': 'Cloud yedekleme devre dışı'
-        }
+        return {"success": True, "message": "Cloud yedekleme devre dışı"}
 
     def to_dict(self) -> Dict[str, Any]:
         """Export privacy core configuration"""
         return {
-            'captain_id': self.captain_id,
-            'cloud_sync_enabled': self.cloud_sync_enabled,
-            'zero_trust_mode': self.zero_trust_mode,
-            'data_policy': self.data_policy.to_dict(),
-            'consent_manager': self.consent_manager.to_dict(),
+            "captain_id": self.captain_id,
+            "cloud_sync_enabled": self.cloud_sync_enabled,
+            "zero_trust_mode": self.zero_trust_mode,
+            "data_policy": self.data_policy.to_dict(),
+            "consent_manager": self.consent_manager.to_dict(),
         }
