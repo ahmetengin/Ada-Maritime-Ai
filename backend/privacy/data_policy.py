@@ -4,7 +4,7 @@ Granular control over data sharing based on sensitivity levels
 """
 
 from enum import Enum
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from dataclasses import dataclass, field
 
 
@@ -63,34 +63,33 @@ class DataPolicy:
     """
 
     # Data classification mapping
-    classification_map: Dict[DataClassification, PermissionLevel] = field(default_factory=lambda: {
-        # LEVEL 0: PRIVATE - Never share without explicit command
-        DataClassification.GPS_HISTORY: PermissionLevel.PRIVATE,
-        DataClassification.COMMUNICATION_LOGS: PermissionLevel.PRIVATE,
-        DataClassification.FINANCIAL_DATA: PermissionLevel.PRIVATE,
-        DataClassification.CREW_PERSONAL_INFO: PermissionLevel.PRIVATE,
-        DataClassification.SENSOR_RAW_DATA: PermissionLevel.PRIVATE,
-        DataClassification.SECURITY_CAMERAS: PermissionLevel.PRIVATE,
-        DataClassification.PASSWORDS: PermissionLevel.PRIVATE,
-        DataClassification.API_KEYS: PermissionLevel.PRIVATE,
-
-        # LEVEL 1: RESTRICTED - Essential data only, with approval
-        DataClassification.CURRENT_POSITION: PermissionLevel.RESTRICTED,
-        DataClassification.VESSEL_SPECIFICATIONS: PermissionLevel.RESTRICTED,
-        DataClassification.ARRIVAL_TIME: PermissionLevel.RESTRICTED,
-        DataClassification.CONTACT_INFO: PermissionLevel.RESTRICTED,
-
-        # LEVEL 2: CONDITIONAL - Captain consent required
-        DataClassification.WEATHER_PREFERENCES: PermissionLevel.CONDITIONAL,
-        DataClassification.ROUTE_PLANNING_STYLE: PermissionLevel.CONDITIONAL,
-        DataClassification.FUEL_CONSUMPTION_STATS: PermissionLevel.CONDITIONAL,
-        DataClassification.MAINTENANCE_SCHEDULE: PermissionLevel.CONDITIONAL,
-
-        # LEVEL 3: ANONYMOUS - No vessel identification
-        DataClassification.POPULAR_ROUTES: PermissionLevel.ANONYMOUS,
-        DataClassification.ANCHORAGE_RATINGS: PermissionLevel.ANONYMOUS,
-        DataClassification.WEATHER_REPORTS: PermissionLevel.ANONYMOUS,
-    })
+    classification_map: Dict[DataClassification, PermissionLevel] = field(
+        default_factory=lambda: {
+            # LEVEL 0: PRIVATE - Never share without explicit command
+            DataClassification.GPS_HISTORY: PermissionLevel.PRIVATE,
+            DataClassification.COMMUNICATION_LOGS: PermissionLevel.PRIVATE,
+            DataClassification.FINANCIAL_DATA: PermissionLevel.PRIVATE,
+            DataClassification.CREW_PERSONAL_INFO: PermissionLevel.PRIVATE,
+            DataClassification.SENSOR_RAW_DATA: PermissionLevel.PRIVATE,
+            DataClassification.SECURITY_CAMERAS: PermissionLevel.PRIVATE,
+            DataClassification.PASSWORDS: PermissionLevel.PRIVATE,
+            DataClassification.API_KEYS: PermissionLevel.PRIVATE,
+            # LEVEL 1: RESTRICTED - Essential data only, with approval
+            DataClassification.CURRENT_POSITION: PermissionLevel.RESTRICTED,
+            DataClassification.VESSEL_SPECIFICATIONS: PermissionLevel.RESTRICTED,
+            DataClassification.ARRIVAL_TIME: PermissionLevel.RESTRICTED,
+            DataClassification.CONTACT_INFO: PermissionLevel.RESTRICTED,
+            # LEVEL 2: CONDITIONAL - Captain consent required
+            DataClassification.WEATHER_PREFERENCES: PermissionLevel.CONDITIONAL,
+            DataClassification.ROUTE_PLANNING_STYLE: PermissionLevel.CONDITIONAL,
+            DataClassification.FUEL_CONSUMPTION_STATS: PermissionLevel.CONDITIONAL,
+            DataClassification.MAINTENANCE_SCHEDULE: PermissionLevel.CONDITIONAL,
+            # LEVEL 3: ANONYMOUS - No vessel identification
+            DataClassification.POPULAR_ROUTES: PermissionLevel.ANONYMOUS,
+            DataClassification.ANCHORAGE_RATINGS: PermissionLevel.ANONYMOUS,
+            DataClassification.WEATHER_REPORTS: PermissionLevel.ANONYMOUS,
+        }
+    )
 
     def get_permission_level(self, data_type: DataClassification) -> PermissionLevel:
         """Get permission level for a data type"""
@@ -112,10 +111,7 @@ class DataPolicy:
 
     def get_sharable_data_types(self) -> List[DataClassification]:
         """Get list of data types that can potentially be shared"""
-        return [
-            data_type for data_type, level in self.classification_map.items()
-            if level != PermissionLevel.PRIVATE
-        ]
+        return [data_type for data_type, level in self.classification_map.items() if level != PermissionLevel.PRIVATE]
 
     def validate_data_request(self, data_types: List[DataClassification]) -> Dict[str, Any]:
         """
@@ -123,28 +119,28 @@ class DataPolicy:
         Returns categorization of data by permission level
         """
         validation = {
-            'private': [],
-            'restricted': [],
-            'conditional': [],
-            'anonymous': [],
-            'requires_approval': [],
-            'auto_deny': [],
+            "private": [],
+            "restricted": [],
+            "conditional": [],
+            "anonymous": [],
+            "requires_approval": [],
+            "auto_deny": [],
         }
 
         for data_type in data_types:
             level = self.get_permission_level(data_type)
 
             if level == PermissionLevel.PRIVATE:
-                validation['private'].append(data_type)
-                validation['auto_deny'].append(data_type)
+                validation["private"].append(data_type)
+                validation["auto_deny"].append(data_type)
             elif level == PermissionLevel.RESTRICTED:
-                validation['restricted'].append(data_type)
-                validation['requires_approval'].append(data_type)
+                validation["restricted"].append(data_type)
+                validation["requires_approval"].append(data_type)
             elif level == PermissionLevel.CONDITIONAL:
-                validation['conditional'].append(data_type)
-                validation['requires_approval'].append(data_type)
+                validation["conditional"].append(data_type)
+                validation["requires_approval"].append(data_type)
             elif level == PermissionLevel.ANONYMOUS:
-                validation['anonymous'].append(data_type)
+                validation["anonymous"].append(data_type)
 
         return validation
 
@@ -154,27 +150,27 @@ class DataPolicy:
         Implements data minimization principle
         """
         minimal_data_map = {
-            'berth_reservation': [
+            "berth_reservation": [
                 DataClassification.VESSEL_SPECIFICATIONS,
                 DataClassification.ARRIVAL_TIME,
             ],
-            'berth_assignment': [
+            "berth_assignment": [
                 DataClassification.VESSEL_SPECIFICATIONS,
                 DataClassification.ARRIVAL_TIME,
             ],
-            'check_in': [
+            "check_in": [
                 DataClassification.VESSEL_SPECIFICATIONS,
                 DataClassification.CURRENT_POSITION,
             ],
-            'emergency': [
+            "emergency": [
                 DataClassification.CURRENT_POSITION,
                 DataClassification.VESSEL_SPECIFICATIONS,
                 DataClassification.CONTACT_INFO,
             ],
-            'weather_forecast': [
+            "weather_forecast": [
                 DataClassification.CURRENT_POSITION,
             ],
-            'route_planning': [
+            "route_planning": [
                 DataClassification.CURRENT_POSITION,
             ],
         }
@@ -191,9 +187,17 @@ class DataPolicy:
             anonymized = data.copy()
 
             # Remove common identifying fields
-            for field in ['vessel_name', 'vessel_id', 'owner_id', 'captain_id',
-                         'contact_info', 'email', 'phone', 'mmsi']:
-                anonymized.pop(field, None)
+            for field_name in [
+                "vessel_name",
+                "vessel_id",
+                "owner_id",
+                "captain_id",
+                "contact_info",
+                "email",
+                "phone",
+                "mmsi",
+            ]:
+                anonymized.pop(field_name, None)
 
             return anonymized
 
@@ -201,18 +205,13 @@ class DataPolicy:
 
     def to_dict(self) -> Dict[str, Any]:
         """Export policy configuration"""
-        return {
-            'classification_map': {
-                k.value: v.value for k, v in self.classification_map.items()
-            }
-        }
+        return {"classification_map": {k.value: v.value for k, v in self.classification_map.items()}}
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'DataPolicy':
+    def from_dict(cls, data: Dict[str, Any]) -> "DataPolicy":
         """Import policy configuration"""
         classification_map = {
-            DataClassification(k): PermissionLevel(v)
-            for k, v in data.get('classification_map', {}).items()
+            DataClassification(k): PermissionLevel(v) for k, v in data.get("classification_map", {}).items()
         }
         return cls(classification_map=classification_map)
 

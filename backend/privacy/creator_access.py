@@ -9,7 +9,7 @@ Principle: "Creator can access everything, but captain knows everything"
 """
 
 from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import time
 import hashlib
@@ -18,6 +18,7 @@ import secrets
 
 class AccessReason(Enum):
     """Reasons for creator access"""
+
     DEVELOPMENT = "development"
     DEBUGGING = "debugging"
     MAINTENANCE = "maintenance"
@@ -30,6 +31,7 @@ class AccessReason(Enum):
 
 class AccessLevel(Enum):
     """Access levels in the system"""
+
     CREATOR = "creator"  # Full system access
     CAPTAIN = "captain"  # Data ownership & operational control
     CREW = "crew"  # Limited operational access
@@ -41,6 +43,7 @@ class CreatorAccessToken:
     """
     Time-limited access token for creator
     """
+
     token_id: str
     creator_id: str
     reason: AccessReason
@@ -65,15 +68,15 @@ class CreatorAccessToken:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            'token_id': self.token_id,
-            'creator_id': self.creator_id,
-            'reason': self.reason.value,
-            'justification': self.justification,
-            'issued_at': self.issued_at,
-            'expires_at': self.expires_at,
-            'scope': self.scope,
-            'captain_notified': self.captain_notified,
-            'captain_approved': self.captain_approved,
+            "token_id": self.token_id,
+            "creator_id": self.creator_id,
+            "reason": self.reason.value,
+            "justification": self.justification,
+            "issued_at": self.issued_at,
+            "expires_at": self.expires_at,
+            "scope": self.scope,
+            "captain_notified": self.captain_notified,
+            "captain_approved": self.captain_approved,
         }
 
 
@@ -110,7 +113,7 @@ class CreatorAccessManager:
         justification: str,
         duration_hours: int = 24,
         scope: Optional[List[str]] = None,
-        sensitive: bool = False
+        sensitive: bool = False,
     ) -> Dict[str, Any]:
         """
         Request creator access
@@ -129,10 +132,7 @@ class CreatorAccessManager:
 
         # Check if creator access is enabled
         if not self.creator_access_enabled:
-            return {
-                'success': False,
-                'reason': 'Creator access has been disabled by captain'
-            }
+            return {"success": False, "reason": "Creator access has been disabled by captain"}
 
         # Create access token
         token = CreatorAccessToken(
@@ -142,18 +142,18 @@ class CreatorAccessManager:
             justification=justification,
             issued_at=time.time(),
             expires_at=time.time() + (duration_hours * 3600),
-            scope=scope or ['full_system'],
+            scope=scope or ["full_system"],
             captain_notified=False,
-            captain_approved=False
+            captain_approved=False,
         )
 
         # For sensitive operations, require captain approval
         if sensitive and self.require_approval_for_sensitive:
             return {
-                'success': False,
-                'requires_approval': True,
-                'token': token.to_dict(),
-                'captain_notification': self._create_captain_notification(token)
+                "success": False,
+                "requires_approval": True,
+                "token": token.to_dict(),
+                "captain_notification": self._create_captain_notification(token),
             }
 
         # Grant access
@@ -165,24 +165,17 @@ class CreatorAccessManager:
 
         # Log access grant
         self._log_creator_action(
-            creator_id=creator_id,
-            action='access_granted',
-            reason=reason.value,
-            token_id=token.token_id
+            creator_id=creator_id, action="access_granted", reason=reason.value, token_id=token.token_id
         )
 
         return {
-            'success': True,
-            'token': token.to_dict(),
-            'message': 'Creator access granted. Captain notified.',
-            'warning': '⚠️  All actions will be logged and visible to captain'
+            "success": True,
+            "token": token.to_dict(),
+            "message": "Creator access granted. Captain notified.",
+            "warning": "⚠️  All actions will be logged and visible to captain",
         }
 
-    def validate_creator_access(
-        self,
-        token_id: str,
-        action: str
-    ) -> Dict[str, bool]:
+    def validate_creator_access(self, token_id: str, action: str) -> Dict[str, bool]:
         """
         Validate creator access for an action
 
@@ -195,40 +188,21 @@ class CreatorAccessManager:
         """
 
         if token_id not in self.active_tokens:
-            return {
-                'valid': False,
-                'reason': 'Invalid or expired token'
-            }
+            return {"valid": False, "reason": "Invalid or expired token"}
 
         token = self.active_tokens[token_id]
 
         if not token.is_valid():
-            return {
-                'valid': False,
-                'reason': 'Token expired'
-            }
+            return {"valid": False, "reason": "Token expired"}
 
         # Log the action
         self._log_creator_action(
-            creator_id=token.creator_id,
-            action=action,
-            reason=token.reason.value,
-            token_id=token_id
+            creator_id=token.creator_id, action=action, reason=token.reason.value, token_id=token_id
         )
 
-        return {
-            'valid': True,
-            'creator_id': token.creator_id,
-            'reason': token.reason.value
-        }
+        return {"valid": True, "creator_id": token.creator_id, "reason": token.reason.value}
 
-    def creator_access_data(
-        self,
-        token_id: str,
-        data_type: str,
-        data: Any,
-        action: str
-    ) -> Dict[str, Any]:
+    def creator_access_data(self, token_id: str, data_type: str, data: Any, action: str) -> Dict[str, Any]:
         """
         Creator accesses data (with full transparency)
 
@@ -244,45 +218,30 @@ class CreatorAccessManager:
 
         # Validate token
         validation = self.validate_creator_access(token_id, action)
-        if not validation['valid']:
-            return {
-                'success': False,
-                'reason': validation['reason']
-            }
+        if not validation["valid"]:
+            return {"success": False, "reason": validation["reason"]}
 
         # Allow access (creator has full access)
         # BUT: Log everything
         self._log_creator_action(
-            creator_id=validation['creator_id'],
-            action=f'data_access:{action}',
-            reason=validation['reason'],
+            creator_id=validation["creator_id"],
+            action=f"data_access:{action}",
+            reason=validation["reason"],
             token_id=token_id,
             details={
-                'data_type': data_type,
-                'data_hash': hashlib.sha256(str(data).encode()).hexdigest()[:16],
-                'timestamp': time.time()
-            }
+                "data_type": data_type,
+                "data_hash": hashlib.sha256(str(data).encode()).hexdigest()[:16],
+                "timestamp": time.time(),
+            },
         )
 
         # Notify captain of data access
-        self._notify_captain_data_access(
-            creator_id=validation['creator_id'],
-            data_type=data_type,
-            action=action
-        )
+        self._notify_captain_data_access(creator_id=validation["creator_id"], data_type=data_type, action=action)
 
-        return {
-            'success': True,
-            'data': data,
-            'logged': True,
-            'captain_notified': True
-        }
+        return {"success": True, "data": data, "logged": True, "captain_notified": True}
 
     def captain_approve_creator_access(
-        self,
-        token_id: str,
-        approved: bool,
-        captain_note: Optional[str] = None
+        self, token_id: str, approved: bool, captain_note: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Captain approves or denies creator access
@@ -291,10 +250,7 @@ class CreatorAccessManager:
         """
 
         if token_id not in self.active_tokens:
-            return {
-                'success': False,
-                'reason': 'Token not found'
-            }
+            return {"success": False, "reason": "Token not found"}
 
         token = self.active_tokens[token_id]
         token.captain_approved = approved
@@ -303,39 +259,29 @@ class CreatorAccessManager:
             # Log approval
             self._log_creator_action(
                 creator_id=token.creator_id,
-                action='captain_approved',
+                action="captain_approved",
                 reason=token.reason.value,
                 token_id=token_id,
-                details={'captain_note': captain_note}
+                details={"captain_note": captain_note},
             )
 
-            return {
-                'success': True,
-                'message': 'Creator access approved',
-                'token': token.to_dict()
-            }
+            return {"success": True, "message": "Creator access approved", "token": token.to_dict()}
         else:
             # Revoke access
             del self.active_tokens[token_id]
 
             self._log_creator_action(
                 creator_id=token.creator_id,
-                action='captain_denied',
+                action="captain_denied",
                 reason=token.reason.value,
                 token_id=token_id,
-                details={'captain_note': captain_note}
+                details={"captain_note": captain_note},
             )
 
-            return {
-                'success': True,
-                'message': 'Creator access denied and revoked',
-                'token_id': token_id
-            }
+            return {"success": True, "message": "Creator access denied and revoked", "token_id": token_id}
 
     def captain_revoke_creator_access(
-        self,
-        token_id: Optional[str] = None,
-        creator_id: Optional[str] = None
+        self, token_id: Optional[str] = None, creator_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Captain revokes creator access
@@ -350,21 +296,12 @@ class CreatorAccessManager:
                 del self.active_tokens[token_id]
 
                 self._log_creator_action(
-                    creator_id=token.creator_id,
-                    action='captain_revoked',
-                    reason='captain_decision',
-                    token_id=token_id
+                    creator_id=token.creator_id, action="captain_revoked", reason="captain_decision", token_id=token_id
                 )
 
-                return {
-                    'success': True,
-                    'message': f'Creator access token {token_id} revoked'
-                }
+                return {"success": True, "message": f"Creator access token {token_id} revoked"}
             else:
-                return {
-                    'success': False,
-                    'reason': 'Token not found'
-                }
+                return {"success": False, "reason": "Token not found"}
 
         elif creator_id:
             # Revoke all tokens for creator
@@ -375,9 +312,9 @@ class CreatorAccessManager:
                     revoked.append(tid)
 
             return {
-                'success': True,
-                'message': f'Revoked {len(revoked)} tokens for creator {creator_id}',
-                'revoked_tokens': revoked
+                "success": True,
+                "message": f"Revoked {len(revoked)} tokens for creator {creator_id}",
+                "revoked_tokens": revoked,
             }
 
         else:
@@ -385,11 +322,7 @@ class CreatorAccessManager:
             count = len(self.active_tokens)
             self.active_tokens.clear()
 
-            return {
-                'success': True,
-                'message': f'Revoked all creator access ({count} tokens)',
-                'count': count
-            }
+            return {"success": True, "message": f"Revoked all creator access ({count} tokens)", "count": count}
 
     def captain_disable_creator_access(self) -> Dict[str, Any]:
         """
@@ -405,10 +338,10 @@ class CreatorAccessManager:
         self.active_tokens.clear()
 
         return {
-            'success': True,
-            'message': 'Creator access completely disabled',
-            'revoked_tokens': count,
-            'warning': '⚠️  System updates and debugging will be limited'
+            "success": True,
+            "message": "Creator access completely disabled",
+            "revoked_tokens": count,
+            "warning": "⚠️  System updates and debugging will be limited",
         }
 
     def captain_enable_creator_access(self) -> Dict[str, Any]:
@@ -420,16 +353,9 @@ class CreatorAccessManager:
 
         self.creator_access_enabled = True
 
-        return {
-            'success': True,
-            'message': 'Creator access enabled'
-        }
+        return {"success": True, "message": "Creator access enabled"}
 
-    def get_creator_access_log(
-        self,
-        creator_id: Optional[str] = None,
-        hours: int = 168
-    ) -> List[Dict[str, Any]]:
+    def get_creator_access_log(self, creator_id: Optional[str] = None, hours: int = 168) -> List[Dict[str, Any]]:
         """
         Get log of all creator actions
 
@@ -438,13 +364,10 @@ class CreatorAccessManager:
 
         cutoff = time.time() - (hours * 3600)
 
-        log = [
-            entry for entry in self.access_log
-            if entry['timestamp'] >= cutoff
-        ]
+        log = [entry for entry in self.access_log if entry["timestamp"] >= cutoff]
 
         if creator_id:
-            log = [e for e in log if e.get('creator_id') == creator_id]
+            log = [e for e in log if e.get("creator_id") == creator_id]
 
         return log
 
@@ -458,22 +381,17 @@ class CreatorAccessManager:
         return [token.to_dict() for token in self.active_tokens.values()]
 
     def _log_creator_action(
-        self,
-        creator_id: str,
-        action: str,
-        reason: str,
-        token_id: str,
-        details: Optional[Dict[str, Any]] = None
+        self, creator_id: str, action: str, reason: str, token_id: str, details: Optional[Dict[str, Any]] = None
     ):
         """Log creator action"""
 
         entry = {
-            'timestamp': time.time(),
-            'creator_id': creator_id,
-            'action': action,
-            'reason': reason,
-            'token_id': token_id,
-            'details': details or {}
+            "timestamp": time.time(),
+            "creator_id": creator_id,
+            "action": action,
+            "reason": reason,
+            "token_id": token_id,
+            "details": details or {},
         }
 
         self.access_log.append(entry)
@@ -484,7 +402,8 @@ class CreatorAccessManager:
         """
 
         # In real implementation, would send notification
-        print(f"""
+        print(
+            f"""
 ╔═══════════════════════════════════════════════════════════╗
 ║  CAPTAIN NOTIFICATION: Creator Access Request            ║
 ╟───────────────────────────────────────────────────────────╢
@@ -499,23 +418,16 @@ class CreatorAccessManager:
 ║
 ║  Voice: "Ada, creator access log'u göster"
 ╚═══════════════════════════════════════════════════════════╝
-        """)
+        """
+        )
 
-    def _notify_captain_data_access(
-        self,
-        creator_id: str,
-        data_type: str,
-        action: str
-    ):
+    def _notify_captain_data_access(self, creator_id: str, data_type: str, action: str):
         """Notify captain of data access by creator"""
 
         # In real implementation, would send notification
         pass
 
-    def _create_captain_notification(
-        self,
-        token: CreatorAccessToken
-    ) -> str:
+    def _create_captain_notification(self, token: CreatorAccessToken) -> str:
         """Create notification text for captain"""
 
         return f"""
@@ -535,66 +447,22 @@ Voice Commands:
 
 # Voice commands for captain
 CREATOR_ACCESS_VOICE_COMMANDS = {
-    'tr': {
-        'show_log': [
-            "creator ne yaptı",
-            "creator access log'u göster",
-            "creator erişim geçmişi"
-        ],
-        'show_active': [
-            "aktif creator access'leri göster",
-            "creator access durumu"
-        ],
-        'approve': [
-            "creator access'i onayla",
-            "creator erişimini onayla"
-        ],
-        'deny': [
-            "creator access'i reddet",
-            "creator erişimini reddet"
-        ],
-        'revoke': [
-            "creator access'i iptal et",
-            "creator erişimini kaldır"
-        ],
-        'disable': [
-            "creator access'i tamamen kapat",
-            "creator erişimini devre dışı bırak"
-        ],
-        'enable': [
-            "creator access'i aktif et",
-            "creator erişimini aç"
-        ]
+    "tr": {
+        "show_log": ["creator ne yaptı", "creator access log'u göster", "creator erişim geçmişi"],
+        "show_active": ["aktif creator access'leri göster", "creator access durumu"],
+        "approve": ["creator access'i onayla", "creator erişimini onayla"],
+        "deny": ["creator access'i reddet", "creator erişimini reddet"],
+        "revoke": ["creator access'i iptal et", "creator erişimini kaldır"],
+        "disable": ["creator access'i tamamen kapat", "creator erişimini devre dışı bırak"],
+        "enable": ["creator access'i aktif et", "creator erişimini aç"],
     },
-    'en': {
-        'show_log': [
-            "what did creator do",
-            "show creator access log",
-            "creator access history"
-        ],
-        'show_active': [
-            "show active creator access",
-            "creator access status"
-        ],
-        'approve': [
-            "approve creator access",
-            "allow creator access"
-        ],
-        'deny': [
-            "deny creator access",
-            "reject creator access"
-        ],
-        'revoke': [
-            "revoke creator access",
-            "remove creator access"
-        ],
-        'disable': [
-            "completely disable creator access",
-            "turn off creator access"
-        ],
-        'enable': [
-            "enable creator access",
-            "turn on creator access"
-        ]
-    }
+    "en": {
+        "show_log": ["what did creator do", "show creator access log", "creator access history"],
+        "show_active": ["show active creator access", "creator access status"],
+        "approve": ["approve creator access", "allow creator access"],
+        "deny": ["deny creator access", "reject creator access"],
+        "revoke": ["revoke creator access", "remove creator access"],
+        "disable": ["completely disable creator access", "turn off creator access"],
+        "enable": ["enable creator access", "turn on creator access"],
+    },
 }
